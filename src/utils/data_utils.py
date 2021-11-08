@@ -5,6 +5,7 @@ import distutils
 import pandas as pd
 from tqdm.autonotebook import tqdm
 import numpy as np
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 # https://github.com/rakshitha123/TSForecasting/blob/master/utils/data_loader.py
 # Converts the contents in a .tsf file into a dataframe and returns it along with other meta-data of the dataset: frequency, horizon, whether the dataset contains missing values and whether the series have equal lengths
@@ -239,7 +240,6 @@ def write_compact_to_ts(
         ]
 
 
-
 def read_ts_to_compact(
     filename: str,
     sep: str = ";",
@@ -346,5 +346,83 @@ def read_ts_to_compact(
     return df
 
 
+def compact_to_expanded(
+    df, timeseries_col, static_cols, time_varying_cols, ts_identifier
+):
+    def preprocess_expanded(x):
+        ### Fill missing dates with NaN ###
+        # Create a date range from  start
+        dr = pd.date_range(
+            start=x["start_timestamp"],
+            periods=len(x["energy_consumption"]),
+            freq=x["frequency"],
+        )
+        df_columns = defaultdict(list)
+        df_columns["timestamp"] = dr
+        for col in [ts_identifier, timeseries_col] + static_cols + time_varying_cols:
+            df_columns[col] = x[col]
+        return pd.DataFrame(df_columns)
+
+    all_series = []
+    for i in tqdm(range(len(df))):
+        all_series.append(preprocess_expanded(df.iloc[i]))
+    df = pd.concat(all_series)
+    del all_series
+    return df
+
+
+def add_freq(idx, freq=None):
+    """Add a frequency attribute to idx, through inference or directly.
+
+    Returns a copy.  If `freq` is None, it is inferred.
+    """
+
+    idx = idx.copy()
+    if freq is None:
+        if idx.freq is None:
+            freq = pd.infer_freq(idx)
+        else:
+            return idx
+    idx.freq = pd.tseries.frequencies.to_offset(freq)
+    if idx.freq is None:
+        raise AttributeError(
+            "no discernible frequency found to `idx`.  Specify"
+            " a frequency string with `freq`."
+        )
+    return idx
+
 
 # block_df = read_ts_to_compact("D:\Playground\AdvancedTimeSeriesForecastingBook\Code Dev\data\london_smart_meters\preprocessed\london_smart_meters_merged_block_0-36.ts")
+
+
+def reduce_memory_footprint(df):
+    dtypes = df.dtypes
+    object_cols = dtypes[dtypes == "object"].index.tolist()
+    float_cols = dtypes[dtypes == "float64"].index.tolist()
+    int_cols = dtypes[dtypes == "int64"].index.tolist()
+    df[int_cols] = df[int_cols].astype("int32")
+    df[object_cols] = df[object_cols].astype("category")
+    df[float_cols] = df[float_cols].astype("float32")
+    return df
+
+
+def _get_32_bit_dtype(x):
+    dtype = x.dtype
+    if dtype.name.startswith("float"):
+        redn_dtype = "float32"
+    elif dtype.name.startswith("int"):
+        redn_dtype = "int32"
+    else:
+        redn_dtype = None
+    return redn_dtype
+
+
+def replace_array_in_dataframe(df, X, keep_columns=True, keep_index=True):
+    return pd.DataFrame(
+        X,
+        columns=df.columns if keep_columns else None,
+        index=df.index if keep_index else None,
+    )
+
+def is_datetime_dtypes(x):
+    return is_datetime(x)
