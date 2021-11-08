@@ -140,3 +140,5 @@ cython_debug/
 data/
 #Exclude imgs folder
 imgs/
+
+test.py
