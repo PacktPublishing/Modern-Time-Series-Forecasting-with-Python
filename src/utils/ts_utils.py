@@ -24,7 +24,8 @@ def make_stationary(x: np.ndarray, method: str="detrend", detrend_kwargs:dict={}
         return stationary, partial(inverse_transform, x=x)
 
 from darts import TimeSeries
-from darts.metrics.metrics import _get_values_or_raise, _remove_nan_union, mae, mse, mase
+from darts.metrics.metrics import _get_values_or_raise, _remove_nan_union
+from darts.metrics import metrics as dart_metrics
 from typing import Optional, Union, Sequence, Callable
 from src.utils.data_utils import is_datetime_dtypes
 import pandas as pd
@@ -102,20 +103,22 @@ def darts_metrics_adapter(metric_func, actual_series: Union[TimeSeries, Sequence
         n_jobs: int = 1,
         verbose: bool = False):
     
-    assert type(actual_series) is type(pred_series), "actual_series and pred_series should be of same type."
+    is_pd_dataframe = isinstance(actual_series, pd.DataFrame)
+    if is_pd_dataframe: 
+        if actual_series.shape[1]==1:
+            actual_series = actual_series.squeeze()
+            pred_series = pred_series.squeeze()
+            if insample is not None:
+                insample = insample.squeeze()
+            is_pd_series = True
+        else:
+            raise ValueError("Dataframes with more than one columns are not supported in the adapter. Use either Series with datetime index, dataframe with a single column and datetime index, or numpy arrays")
+    assert type(actual_series) is type(pred_series), f"actual_series({type(actual_series)}) and pred_series({type(pred_series)}) should be of same type."
     if insample is not None:
         assert type(actual_series) is type(insample), "actual_series and insample should be of same type."
     is_nd_array = isinstance(actual_series, np.ndarray)
     is_pd_series = isinstance(actual_series, pd.Series)
-    is_pd_dataframe = isinstance(actual_series, pd.DataFrame)
-    if is_pd_dataframe and actual_series.shape[1]==1:
-        actual_series = actual_series.squeeze()
-        pred_series = pred_series.squeeze()
-        if insample is not None:
-            insample = insample.squeeze()
-        is_pd_series = True
-    else:
-        raise ValueError("Dataframes not supported in the adapter. Use either Series with datetime index or numpy arrays")
+    
     if is_pd_series:
         is_datetime_index = is_datetime_dtypes(actual_series.index) and is_datetime_dtypes(pred_series.index)
         if insample is not None:
@@ -141,3 +144,12 @@ def darts_metrics_adapter(metric_func, actual_series: Union[TimeSeries, Sequence
         return metric_func(actual_series=actual_series, pred_series=pred_series, insample=insample, m=m, intersect=intersect, reduction=reduction, inter_reduction=inter_reduction, n_jobs=n_jobs, verbose=verbose)
     else:
         return metric_func(actual_series=actual_series, pred_series=pred_series, intersect=intersect, reduction=reduction, inter_reduction=inter_reduction, n_jobs=n_jobs, verbose=verbose)
+
+def mae(actuals, predictions):
+    return np.nanmean(np.abs(actuals-predictions))
+
+def mse(actuals, predictions):
+    return np.nanmean(np.power(actuals-predictions, 2))
+
+def forecast_bias_aggregate(actuals, predictions):
+    return (np.nansum(predictions)-np.nansum(actuals))/np.nansum(actuals)

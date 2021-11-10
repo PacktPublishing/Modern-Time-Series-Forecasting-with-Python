@@ -1,0 +1,52 @@
+name: modern_ts
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python==3.9
+  - plotly
+  - py-xgboost
+  - scikit-learn>=0.21.2
+  - pandas
+#  - prophet>=1.0.0
+#  - pystan>=2.19.1.1
+  - catboost
+  - lightgbm
+  - category_encoders
+  - pmdarima>=1.8.0
+  - ipywidgets[version='>=7.6']
+  - jupyterlab[version='>=3']
+  - black
+  - xlrd
+  - lxml
+  - openpyxl
+  - python-kaleido
+  - pyarrow
+  - numpy
+  - scipy
+  - tqdm
+  - matplotlib
+  - humanize
+  - numba
+  - holidays
+  - seaborn
+  - statsmodels
+  - u8darts
+  #- u8darts-all
+  - pytorch::pytorch
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - pytorch-lightning
+  #- pytorch::cudatoolkit==10.2
+  - pip
+  - pip:
+    - kaggle>=1.5.2
+    - missingno>=0.5.0
+    - window_ops
+    - pymannkendall
+#    - prophet>=1.0.0
+    - aquirdturtle_collapsible_headings>=3.1.0
+    # - matplotlib==2.0.0  # pin version for pip
+      # and for wheels
+    #  - http://www.lfd.uci.edu/~gohlke/pythonlibs/bofhrmxk/opencv_python-3.1.0-cp35-none-win_amd64.whl
