@@ -26,7 +26,7 @@ def make_stationary(x: np.ndarray, method: str="detrend", detrend_kwargs:dict={}
 from darts import TimeSeries
 from darts.metrics.metrics import _get_values_or_raise, _remove_nan_union
 from darts.metrics import metrics as dart_metrics
-from typing import Optional, Union, Sequence, Callable
+from typing import Optional, Union, Sequence, Callable, cast
 from src.utils.data_utils import is_datetime_dtypes
 import pandas as pd
 
@@ -93,6 +93,15 @@ def forecast_bias(actual_series: Union[TimeSeries, Sequence[TimeSeries], np.ndar
     # raise_if_not(y_true_sum > 0, 'The series of actual value cannot sum to zero when computing OPE.', logger)
     return ((y_true_sum - y_pred_sum) / y_true_sum) * 100.
 
+def cast_to_series(df):
+    is_pd_dataframe = isinstance(df, pd.DataFrame)    
+    if is_pd_dataframe: 
+        if df.shape[1]==1:
+            df = df.squeeze()
+        else:
+            raise ValueError("Dataframes with more than one columns cannot be converted to pd.Series")
+    return df
+
 def darts_metrics_adapter(metric_func, actual_series: Union[TimeSeries, Sequence[TimeSeries]],
         pred_series: Union[TimeSeries, Sequence[TimeSeries]],
         insample: Union[TimeSeries, Sequence[TimeSeries]] = None,
@@ -103,16 +112,9 @@ def darts_metrics_adapter(metric_func, actual_series: Union[TimeSeries, Sequence
         n_jobs: int = 1,
         verbose: bool = False):
     
-    is_pd_dataframe = isinstance(actual_series, pd.DataFrame)
-    if is_pd_dataframe: 
-        if actual_series.shape[1]==1:
-            actual_series = actual_series.squeeze()
-            pred_series = pred_series.squeeze()
-            if insample is not None:
-                insample = insample.squeeze()
-            is_pd_series = True
-        else:
-            raise ValueError("Dataframes with more than one columns are not supported in the adapter. Use either Series with datetime index, dataframe with a single column and datetime index, or numpy arrays")
+    actual_series, pred_series = cast_to_series(actual_series), cast_to_series(pred_series)
+    if insample is not None:
+        insample = cast_to_series(insample)
     assert type(actual_series) is type(pred_series), f"actual_series({type(actual_series)}) and pred_series({type(pred_series)}) should be of same type."
     if insample is not None:
         assert type(actual_series) is type(insample), "actual_series and insample should be of same type."
@@ -152,4 +154,4 @@ def mse(actuals, predictions):
     return np.nanmean(np.power(actuals-predictions, 2))
 
 def forecast_bias_aggregate(actuals, predictions):
-    return (np.nansum(predictions)-np.nansum(actuals))/np.nansum(actuals)
+    return 100*(np.nansum(predictions)-np.nansum(actuals))/np.nansum(actuals)

@@ -5,7 +5,7 @@ Modern Time Series Forecasting with Python, published by Packt
 1. Install Anaconda or Miniconda if not done already - `https://www.anaconda.com/products/individual` or `https://docs.conda.io/en/latest/miniconda.html` 
 2. From the root directory of thr repo execute the below command
 `conda env create -f anaconda_env.yml`
-3. Grab a cup of coffee and snacks, cause this can take a while.
+3. Grab a cup of coffee, cause this can take a while.
 
 ## Instructions to Download Data
 
