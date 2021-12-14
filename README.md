@@ -3,10 +3,18 @@ Modern Time Series Forecasting with Python, published by Packt
 
 ## Instructions to Setup the Environment
 1. Install Anaconda or Miniconda if not done already - `https://www.anaconda.com/products/individual` or `https://docs.conda.io/en/latest/miniconda.html` 
+1a. If you are running windows and have not installed Build Tools for Visual Studio in your machine, you need to install that for `fancyimpute` to work. Head over to Additional Installations and complete it.
 2. From the root directory of thr repo execute the below command
 `conda env create -f anaconda_env.yml`
 3. Grab a cup of coffee, cause this can take a while.
 
+### Additional Installations, if needed
+If you are on Windows and have not installed Build Tools for Visual Studio in your machine, you need to install that for `fancyimpute` to work.
+https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
+
+Select: Workloads → Desktop development with C++
+
+Windows Python needs Visual C++ libraries installed via the SDK to build code, such as via setuptools.extension.Extension or numpy.distutils.core.Extension. For example, building f2py modules in Windows with Python requires Visual C++ SDK as installed above. On Linux and Mac, the C++ libraries are installed with the compiler.
 ## Instructions to Download Data
 
 1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab

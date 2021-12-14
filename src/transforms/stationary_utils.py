@@ -149,7 +149,7 @@ def _bartlett_formula(r: np.ndarray,
         return math.sqrt((1 + 2 * sum(map(lambda x: x ** 2, r[:m - 1]))) / length)
 
 # Adapted and generalised fomr https://github.com/unit8co/darts/blob/f0bb54ba26ffea66e199331a1e64b2bf1f92a28b/darts/utils/statistics.py#L25
-def check_seasonality(y, max_lag=24, seasonal_period=None, confidence=0.05):
+def check_seasonality(y, max_lag=24, seasonal_period=None, confidence=0.05, verbose=True):
     res = namedtuple("Seasonality_Test", ["seasonal", "seasonal_periods"])
     y = _check_convert_y(y)
     if seasonal_period is not None and (seasonal_period < 2 or not isinstance(seasonal_period, int)):
@@ -168,7 +168,8 @@ def check_seasonality(y, max_lag=24, seasonal_period=None, confidence=0.05):
     candidates = argrelmax(r)[0]
 
     if len(candidates) == 0:
-        print('The ACF has no local maximum for m < max_lag = {}. Try larger max_lag'.format(max_lag))
+        if verbose:
+            print('The ACF has no local maximum for m < max_lag = {}. Try larger max_lag'.format(max_lag))
         return res(False, 0)
 
     if seasonal_period is not None:

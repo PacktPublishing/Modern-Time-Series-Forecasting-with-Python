@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import warnings
 import numpy as np
 import plotly.express as px
+import plotly.figure_factory as ff
+
 
 def make_lines_greyscale(fig):
     colors = cycle(list(set(n_colors('rgb(100, 100, 100)', 'rgb(200, 200, 200)', 2+1, colortype='rgb'))))
@@ -159,3 +161,37 @@ def plot_autocorrelation(series,vertical=False, figsize=(500, 900), **kwargs):
 def show_plotly_swatches():
     fig = px.colors.qualitative.swatches()
     fig.show()
+
+def plot_correlation_plot(df, title="Heatmap", num_decimals=2, figsize=(200,200)):
+    df = df.round(num_decimals)
+    mask = np.triu(np.ones_like(df, dtype=bool))
+    df_mask = df.mask(mask)
+
+    fig = ff.create_annotated_heatmap(z=df_mask.to_numpy(), 
+                                      x=df_mask.columns.tolist(),
+                                      y=df_mask.columns.tolist(),
+                                      colorscale=px.colors.diverging.RdBu,
+                                      hoverinfo="none", #Shows hoverinfo for null values
+                                      showscale=True, ygap=1, xgap=1
+                                     )
+    fig.update_xaxes(side="bottom")
+    fig.update_layout(
+        title_text=title, 
+        title_x=0.5, 
+        width=figsize[0], 
+        height=figsize[1],
+        xaxis_showgrid=False,
+        yaxis_showgrid=False,
+        xaxis_zeroline=False,
+        yaxis_zeroline=False,
+        yaxis_autorange='reversed',
+        template='plotly_white'
+    )
+
+    # NaN values are not handled automatically and are displayed in the figure
+    # So we need to get rid of the text manually
+    for i in range(len(fig.layout.annotations)):
+        if fig.layout.annotations[i].text == 'nan':
+            fig.layout.annotations[i].text = ""
+
+    return fig

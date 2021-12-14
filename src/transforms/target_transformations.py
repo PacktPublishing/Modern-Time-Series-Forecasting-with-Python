@@ -840,43 +840,47 @@ class AutoStationaryTransformer:
         else:
             self.freq = y.index.freq if freq is None else freq
         self._pipeline = []
-        _trend_check = check_trend(y, self.confidence, **self.trend_check_params)
-        self._trend_check = {k:v for k,v in _trend_check._asdict().items() if k!="deterministic_trend_results"}
-        if _trend_check.trend:
-            detrender = DetrendingTransformer(**self.detrender_params)
-            y = detrender.fit_transform(y, freq=self.freq)
-            self._pipeline.append(detrender)
-        _seasonality_check = check_seasonality(
-            y,
-            max_lag=self.seasonality_max_lags
-            if self._infer_seasonality
-            else self.seasonal_period + 1,
-            seasonal_period=self.seasonal_period,
-            confidence=self.confidence,
-        )
-        self._seasonality_check = _seasonality_check._asdict()
-        if _seasonality_check.seasonal and self._infer_seasonality:
-            self.seasonal_period = _seasonality_check.seasonal_periods
-        if _seasonality_check.seasonal:
-            self.deseasonalizer_params["seasonal_period"] = self.seasonal_period
-            deseasonalizer = DeseasonalizingTransformer(**self.deseasonalizer_params)
-            y = deseasonalizer.fit_transform(y, freq=self.freq)
-            self._pipeline.append(deseasonalizer)
-
-        _hetero_check = check_heteroscedastisticity(y, self.confidence)
-        self._hetero_check = _hetero_check._asdict()
-        if _hetero_check.heteroscedastic:
-            if y.min() < 0:
-                add_m = AddMTransformer(np.abs(y.min()) + 1)
-                y = add_m.fit_transform(y)
-                self._pipeline.append(add_m)
-            # No seasonality has been identified. But we still need to split the series into sub series for Guerrero's method
-            self.box_cox_params["seasonal_period"] = (
-                len(y) // 4 if self.seasonal_period is None else self.seasonal_period
+        _min_max_lag = min(len(y) // 2 - 2 , self.seasonality_max_lags)
+        n_unique = len(np.unique(y))
+        if _min_max_lag>0 and n_unique>2:
+            _trend_check = check_trend(y, self.confidence, **self.trend_check_params)
+            self._trend_check = {k:v for k,v in _trend_check._asdict().items() if k!="deterministic_trend_results"}
+            if _trend_check.trend:
+                detrender = DetrendingTransformer(**self.detrender_params)
+                y = detrender.fit_transform(y, freq=self.freq)
+                self._pipeline.append(detrender)
+            _seasonality_check = check_seasonality(
+                y,
+                max_lag=self.seasonality_max_lags
+                if self._infer_seasonality
+                else self.seasonal_period + 1,
+                seasonal_period=self.seasonal_period,
+                confidence=self.confidence,
+                verbose=False
             )
-            box_cox_transformer = BoxCoxTransformer(**self.box_cox_params)
-            y = box_cox_transformer.fit_transform(y)
-            self._pipeline.append(box_cox_transformer)
+            self._seasonality_check = _seasonality_check._asdict()
+            if _seasonality_check.seasonal and self._infer_seasonality:
+                self.seasonal_period = _seasonality_check.seasonal_periods
+            if _seasonality_check.seasonal:
+                self.deseasonalizer_params["seasonal_period"] = self.seasonal_period
+                deseasonalizer = DeseasonalizingTransformer(**self.deseasonalizer_params)
+                y = deseasonalizer.fit_transform(y, freq=self.freq)
+                self._pipeline.append(deseasonalizer)
+
+            _hetero_check = check_heteroscedastisticity(y, self.confidence)
+            self._hetero_check = _hetero_check._asdict()
+            if _hetero_check.heteroscedastic:
+                if y.min() < 0:
+                    add_m = AddMTransformer(np.abs(y.min()) + 1)
+                    y = add_m.fit_transform(y)
+                    self._pipeline.append(add_m)
+                # No seasonality has been identified. But we still need to split the series into sub series for Guerrero's method
+                self.box_cox_params["seasonal_period"] = max(
+                    len(y) // 4 if self.seasonal_period is None else self.seasonal_period, 5
+                )
+                box_cox_transformer = BoxCoxTransformer(**self.box_cox_params)
+                y = box_cox_transformer.fit_transform(y)
+                self._pipeline.append(box_cox_transformer)
         self._is_fitted = True
         # self._unit_root_check = check_unit_root(y, confidence=confidence)
         return self

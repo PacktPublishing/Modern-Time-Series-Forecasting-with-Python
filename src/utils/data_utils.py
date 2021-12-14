@@ -424,5 +424,13 @@ def replace_array_in_dataframe(df, X, keep_columns=True, keep_index=True):
         index=df.index if keep_index else None,
     )
 
+def as_ndarray(y):
+    if isinstance(y, (pd.Series, pd.DataFrame)):
+        return y.values
+    elif isinstance(y, np.ndarray):
+        return y
+    else:
+        raise ValueError("`y` should be pd.SEries, pd.DataFrame, or np.ndarray to cast to np.ndarray")
+
 def is_datetime_dtypes(x):
     return is_datetime(x)

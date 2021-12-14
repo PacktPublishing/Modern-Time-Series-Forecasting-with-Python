@@ -3,6 +3,7 @@ from typing import List, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_list_like
 from window_ops.rolling import (
     seasonal_rolling_max,
     seasonal_rolling_min,
@@ -56,7 +57,7 @@ def add_lags(
     Returns:
         Tuple(pd.DataFrame, List): Returns a tuple of the new dataframe and a list of features which were added
     """
-    assert isinstance(lags, list), "`lags` should be a list of all required lags"
+    assert is_list_like(lags), "`lags` should be a list of all required lags"
     assert (
         column in df.columns
     ), "`column` should be a valid column in the provided dataframe"
@@ -134,9 +135,9 @@ def add_rolling_features(
     Returns:
         Tuple[pd.DataFrame, List]: Returns a tuple of the new dataframe and a list of features which were added
     """
-    assert isinstance(
-        rolls, list
-    ), "`lags` should be a list of all required rolling windows"
+    assert is_list_like(
+        rolls
+    ), "`rolls` should be a list of all required rolling windows"
     assert (
         column in df.columns
     ), "`column` should be a valid column in the provided dataframe"
@@ -208,9 +209,9 @@ def add_seasonal_rolling_features(
     Returns:
         Tuple[pd.DataFrame, List]: Returns a tuple of the new dataframe and a list of features which were added
     """
-    assert isinstance(
-        rolls, list
-    ), "`lags` should be a list of all required rolling windows"
+    assert is_list_like(
+        rolls
+    ), "`rolls` should be a list of all required rolling windows"
     assert isinstance(
         seasonal_periods, list
     ), "`seasonal_periods` should be a list of all required seasonal cycles over which rolling statistics to be created"
@@ -346,7 +347,9 @@ def add_ewma(
             alphas, list
         ), "`alphas` should be a list of all required smoothing parameters"
     if spans is None and alphas is None:
-        raise ValueError("Either `alpha` or `spans` should be provided for the function to")
+        raise ValueError(
+            "Either `alpha` or `spans` should be provided for the function to"
+        )
     assert (
         column in df.columns
     ), "`column` should be a valid column in the provided dataframe"
@@ -360,7 +363,11 @@ def add_ewma(
             col_dict = {
                 f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df[column]
                 .shift(n_shift)
-                .ewm(alpha=None if use_spans else param, span=param if use_spans else None, adjust=False)
+                .ewm(
+                    alpha=None if use_spans else param,
+                    span=param if use_spans else None,
+                    adjust=False,
+                )
                 .mean()
                 .astype(_32_bit_dtype)
                 for param in (spans if use_spans else alphas)
@@ -369,7 +376,11 @@ def add_ewma(
             col_dict = {
                 f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df[column]
                 .shift(n_shift)
-                .ewm(alpha=None if use_spans else param, span=param if use_spans else None, adjust=False)
+                .ewm(
+                    alpha=None if use_spans else param,
+                    span=param if use_spans else None,
+                    adjust=False,
+                )
                 .mean()
                 for param in (spans if use_spans else alphas)
             }
@@ -379,18 +390,34 @@ def add_ewma(
         ), "`ts_id` should be a valid column in the provided dataframe"
         if use_32_bit and _32_bit_dtype is not None:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby([ts_id])[column]
+                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby(
+                    [ts_id]
+                )[
+                    column
+                ]
                 .shift(n_shift)
-                .ewm(alpha=None if use_spans else param, span=param if use_spans else None, adjust=False)
+                .ewm(
+                    alpha=None if use_spans else param,
+                    span=param if use_spans else None,
+                    adjust=False,
+                )
                 .mean()
                 .astype(_32_bit_dtype)
                 for param in (spans if use_spans else alphas)
             }
         else:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby([ts_id])[column]
+                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby(
+                    [ts_id]
+                )[
+                    column
+                ]
                 .shift(n_shift)
-                .ewm(alpha=None if use_spans else param, span=param if use_spans else None, adjust=False)
+                .ewm(
+                    alpha=None if use_spans else param,
+                    span=param if use_spans else None,
+                    adjust=False,
+                )
                 .mean()
                 for param in (spans if use_spans else alphas)
             }

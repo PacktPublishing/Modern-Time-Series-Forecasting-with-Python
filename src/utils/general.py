@@ -21,3 +21,12 @@ class LogTime:
         self.elapsed_str = humanize.precisedelta(self.elapsed, **self.humanize_kwargs)
         if self.verbose:
             print(f"Time Elapsed: {self.elapsed_str}")
+
+def intersect_list(list1, list2):
+    return list(set(list1).intersection(set(list2)))
+
+def difference_list(list1, list2):
+    return list(set(list1)- set(list2))
+
+def union_list(list1, list2):
+    return list(set(list1).union(set(list2)))

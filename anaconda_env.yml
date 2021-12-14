@@ -9,8 +9,6 @@ dependencies:
   - py-xgboost
   - scikit-learn>=0.21.2
   - pandas
-#  - prophet>=1.0.0
-#  - pystan>=2.19.1.1
   - catboost
   - lightgbm
   - category_encoders
@@ -18,10 +16,11 @@ dependencies:
   - ipywidgets[version='>=7.6']
   - jupyterlab[version='>=3']
   - black
+  - isort
   - xlrd
   - lxml
   - openpyxl
-  - python-kaleido
+  - python-kaleido==0.1.0
   - pyarrow
   - numpy
   - scipy
@@ -45,7 +44,8 @@ dependencies:
     - missingno>=0.5.0
     - window_ops
     - pymannkendall
-#    - prophet>=1.0.0
+    - fancyimpute
+    - jupyterlab-code-formatter>=1.4.10
     - aquirdturtle_collapsible_headings>=3.1.0
     # - matplotlib==2.0.0  # pin version for pip
       # and for wheels
