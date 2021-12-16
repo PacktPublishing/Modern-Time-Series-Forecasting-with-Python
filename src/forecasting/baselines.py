@@ -1,5 +1,5 @@
 import numpy as np
-from darts.models.forecasting_model import ForecastingModel
+from darts.models.forecasting.forecasting_model import ForecastingModel
 from darts import TimeSeries
 
 class NaiveMovingAverage(ForecastingModel):

@@ -31,7 +31,7 @@ dependencies:
   - holidays
   - seaborn
   - statsmodels
-  - u8darts
+  - u8darts==0.14.0
   #- u8darts-all
   - pytorch::pytorch
   - pytorch::torchvision

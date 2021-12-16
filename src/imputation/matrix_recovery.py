@@ -466,3 +466,139 @@ class TruncatedSVDImputation(Solver):
         if self.verbose:
             print(f"[Truncated SVD] Truncated SVD complete with MAE: {mae:.6f}")
         return X
+
+# import torch
+# from sklearn.utils import check_array
+# # from .solver import Solver
+# # from .common import masked_mae
+
+
+# class MatrixFactorization(Solver):
+#     def __init__(
+#         self,
+#         rank=40,
+#         learning_rate=0.01,
+#         max_iters=50,
+#         shrinkage_value=0,
+#         min_value=None,
+#         max_value=None,
+#         verbose=True,
+#     ):
+#         """
+#         Train a matrix factorization model to predict empty
+#         entries in a matrix. Mostly copied (with permission) from:
+#         https://blog.insightdatascience.com/explicit-matrix-factorization-als-sgd-and-all-that-jazz-b00e4d9b21ea
+
+#         Params
+#         =====+
+#         rank : (int)
+#             Number of latent factors to use in matrix
+#             factorization model
+
+#         learning_rate : (float)
+#             Learning rate for optimizer
+
+#         max_iters : (int)
+#             Number of max_iters to train for
+
+#         shrinkage_value : (float)
+#             Regularization term for sgd penalty
+
+#         min_value : float
+#             Smallest possible imputed value
+
+#         max_value : float
+#             Largest possible imputed value
+
+#         verbose : (bool)
+#             Whether or not to printout training progress
+#         """
+#         Solver.__init__(self, min_value=min_value, max_value=max_value)
+#         self.rank = rank
+#         self.learning_rate = learning_rate
+#         self.max_iters = max_iters
+#         self.shrinkage_value = shrinkage_value
+#         self._v = verbose
+
+#     @staticmethod    
+#     def masked_mae(X_true, X_pred, mask):
+#         masked_diff = X_true[mask] - X_pred[mask]
+#         return torch.mean(torch.abs(masked_diff))
+    
+#     def clip(self, X):
+#         """
+#         Clip values to fall within any global or column-wise min/max constraints
+#         """
+#         if self.min_value is not None:
+#             X[X < self.min_value] = self.min_value
+#         if self.max_value is not None:
+#             X[X > self.max_value] = self.max_value
+#         return X
+
+#     def solve(self, X, missing_mask):
+#         """ Train model for max_iters iterations from scratch."""
+#         X = torch.from_numpy(check_array(X, force_all_finite=False))
+#         if torch.cuda.is_available():
+#             device = torch.device("cuda")
+#         else:
+#             device = torch.device("cpu")
+#         # shape data to fit into keras model
+#         (n_samples, n_features) = X.shape
+#         observed_mask = ~missing_mask
+#         training_indices = list(zip(*np.where(observed_mask)))
+
+#         # self.user_vecs = np.random.normal(scale=1.0 / self.rank, size=(n_samples, self.rank))
+#         self.user_vecs = torch.randn(n_samples, self.rank, device=device)*1.0 / self.rank
+#         # np.random.normal(scale=1.0 / self.rank, size=(n_samples, self.rank))
+#         # self.item_vecs = np.random.normal(scale=1.0 / self.rank, size=)
+#         self.item_vecs = torch.randn(n_features, self.rank, device=device)*1.0 / self.rank
+    
+
+#         self.user_bias = torch.zeros(n_samples, device=device)
+#         self.item_bias = torch.zeros(n_features, device=device)
+#         self.global_bias = torch.mean(X[observed_mask])
+
+#         for i in range(self.max_iters):
+#             # to do: early stopping
+#             if (i + 1) % 10 == 0 and self._v:
+#                 X_reconstruction = self.clip(self.predict_all())
+#                 mae = self.masked_mae(X_true=X, X_pred=X_reconstruction, mask=observed_mask)
+#                 print("[MatrixFactorization] Iter %d: observed MAE=%0.6f rank=%d" % (i + 1, mae, self.rank))
+
+#             np.random.shuffle(training_indices)
+#             self.sgd(X, training_indices)
+#             i += 1
+
+#         X_filled = X.copy()
+#         X_filled[missing_mask] = self.clip(self.predict_all()[missing_mask])
+#         return X_filled
+
+#     def sgd(self, X, training_indices):
+#         # to do: batch learning
+#         for (u, i) in training_indices:
+#             prediction = self.predict(u, i)
+#             e = X[u, i] - prediction  # error
+
+#             # Update biases
+#             self.user_bias[u] += self.learning_rate * (e - self.shrinkage_value * self.user_bias[u])
+#             self.item_bias[i] += self.learning_rate * (e - self.shrinkage_value * self.item_bias[i])
+
+#             # Update latent factors
+#             self.user_vecs[u, :] += self.learning_rate * (
+#                 e * self.item_vecs[i, :] - self.shrinkage_value * self.user_vecs[u, :]
+#             )
+#             self.item_vecs[i, :] += self.learning_rate * (
+#                 e * self.user_vecs[u, :] - self.shrinkage_value * self.item_vecs[i, :]
+#             )
+
+#     def predict(self, u, i):
+#         """ Single user and item prediction."""
+#         prediction = self.global_bias + self.user_bias[u] + self.item_bias[i]
+#         prediction += self.user_vecs[u, :].dot(self.item_vecs[i, :].T)
+#         return prediction
+
+#     def predict_all(self):
+#         """ Predict ratings for every user and item."""
+#         predictions = self.user_vecs.dot(self.item_vecs.T)
+#         predictions += self.global_bias + self.user_bias.unsqueeze(-1) + self.item_bias.unsqueeze(0)
+#         return predictions

@@ -24,11 +24,21 @@ def make_stationary(x: np.ndarray, method: str="detrend", detrend_kwargs:dict={}
         return stationary, partial(inverse_transform, x=x)
 
 from darts import TimeSeries
-from darts.metrics.metrics import _get_values_or_raise, _remove_nan_union
+from darts.metrics.metrics import _get_values_or_raise
 from darts.metrics import metrics as dart_metrics
-from typing import Optional, Union, Sequence, Callable, cast
+from typing import Optional, Tuple, Union, Sequence, Callable, cast
 from src.utils.data_utils import is_datetime_dtypes
 import pandas as pd
+
+def _remove_nan_union(array_a: np.ndarray,
+                      array_b: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Returns the two inputs arrays where all elements are deleted that have an index that corresponds to
+    a NaN value in either of the two input arrays.
+    """
+
+    isnan_mask = np.logical_or(np.isnan(array_a), np.isnan(array_b))
+    return np.delete(array_a, isnan_mask), np.delete(array_b, isnan_mask)
 
 def forecast_bias(actual_series: Union[TimeSeries, Sequence[TimeSeries], np.ndarray],
         pred_series: Union[TimeSeries, Sequence[TimeSeries], np.ndarray],
