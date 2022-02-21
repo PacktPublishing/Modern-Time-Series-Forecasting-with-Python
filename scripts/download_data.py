@@ -1,7 +1,6 @@
 import pandas as pd
 
 import requests
-import wget
 import json
 import os
 from pathlib import Path
