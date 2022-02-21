@@ -361,7 +361,7 @@ def add_ewma(
         # Assuming just one unique time series in dataset
         if use_32_bit and _32_bit_dtype is not None:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df[column]
+                f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df[column]
                 .shift(n_shift)
                 .ewm(
                     alpha=None if use_spans else param,
@@ -374,7 +374,7 @@ def add_ewma(
             }
         else:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df[column]
+                f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df[column]
                 .shift(n_shift)
                 .ewm(
                     alpha=None if use_spans else param,
@@ -390,7 +390,7 @@ def add_ewma(
         ), "`ts_id` should be a valid column in the provided dataframe"
         if use_32_bit and _32_bit_dtype is not None:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby(
+                f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df.groupby(
                     [ts_id]
                 )[
                     column
@@ -407,7 +407,7 @@ def add_ewma(
             }
         else:
             col_dict = {
-                f"{column}_ewma__{'span' if use_spans else 'alpha'}_{param}": df.groupby(
+                f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df.groupby(
                     [ts_id]
                 )[
                     column

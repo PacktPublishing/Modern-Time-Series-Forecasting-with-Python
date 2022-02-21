@@ -41,3 +41,22 @@ Alternative 2
 2. Go to https://www.kaggle.com/jeanmidev/smart-meters-in-london and download the dataset
 3. Unzip the contents to `data/london_smart_meters`
 4. Unzip `hhblock_dataset` to get the raw files we want to work with.
+
+### Final Folder Structure after dataset extraction
+data
+├── london_smart_meters
+│   ├── hhblock_dataset
+│   │   ├── hhblock_dataset
+│   │       ├── hhblock_dataset.csv
+│── acorn_details.csv
+├── informations_households.csv
+├── uk_bank_holidays.csv
+├── weather_daily_darksky.csv
+├── weather_hourly_darksky.csv
+
+# Blocks vs RAM
+
+* 1 or <1 Block for 4GB RAM
+* 1 or 2 Blocks for 8GB RAM
+* 3 Blocks for 16GB RAM
+* 5 Blocks for 32GB RAM

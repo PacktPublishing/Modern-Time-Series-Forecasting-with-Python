@@ -860,8 +860,8 @@ class AutoStationaryTransformer:
             )
             self._seasonality_check = _seasonality_check._asdict()
             if _seasonality_check.seasonal and self._infer_seasonality:
-                self.seasonal_period = _seasonality_check.seasonal_periods
-            if _seasonality_check.seasonal:
+                self.seasonal_period = int(_seasonality_check.seasonal_periods)
+            if _seasonality_check.seasonal and len(y)>2*self.seasonal_period:
                 self.deseasonalizer_params["seasonal_period"] = self.seasonal_period
                 deseasonalizer = DeseasonalizingTransformer(**self.deseasonalizer_params)
                 y = deseasonalizer.fit_transform(y, freq=self.freq)

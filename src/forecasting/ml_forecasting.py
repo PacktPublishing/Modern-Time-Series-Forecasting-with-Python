@@ -4,11 +4,13 @@ from numpy.lib.arraysetops import isin
 import pandas as pd
 from darts.metrics import mase, mse, mae
 from src.utils.ts_utils import forecast_bias, darts_metrics_adapter
-from src.utils.general import intersect_list , union_list, difference_list
+from src.utils.general import intersect_list, union_list, difference_list
 from sklearn.base import BaseEstimator, clone
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import warnings
+import copy
+
 # from category_encoders import OneHotEncoder
 
 
@@ -39,10 +41,16 @@ class MissingValueConfig:
         df[zero_fill_columns] = df[zero_fill_columns].fillna(0)
         check = df.isnull().any()
         missing_cols = check[check].index.tolist()
-        missing_numeric_cols = intersect_list(missing_cols,df.select_dtypes([np.number]).columns.tolist())
-        missing_object_cols = intersect_list(missing_cols,df.select_dtypes(["object"]).columns.tolist())
+        missing_numeric_cols = intersect_list(
+            missing_cols, df.select_dtypes([np.number]).columns.tolist()
+        )
+        missing_object_cols = intersect_list(
+            missing_cols, df.select_dtypes(["object"]).columns.tolist()
+        )
         # Filling with mean and NA as default fillna strategy
-        df[missing_numeric_cols] = df[missing_numeric_cols].fillna(df[missing_numeric_cols].mean())
+        df[missing_numeric_cols] = df[missing_numeric_cols].fillna(
+            df[missing_numeric_cols].mean()
+        )
         df[missing_object_cols] = df[missing_object_cols].fillna("NA")
         return df
 
@@ -110,6 +118,23 @@ class FeatureConfig:
         assert (
             len(extra_exog) == 0
         ), f"These exogenous features are not present in feature list: {extra_exog}"
+        intersection = (
+            set(self.continuous_features)
+            .intersection(self.categorical_features + self.boolean_features)
+            .union(
+                set(self.categorical_features).intersection(
+                    self.continuous_features + self.boolean_features
+                )
+            )
+            .union(
+                set(self.boolean_features).intersection(
+                    self.continuous_features + self.categorical_features
+                )
+            )
+        )
+        assert (
+            len(intersection) == 0
+        ), f"There should not be any overlaps between the categorical contonuous and boolean features. {intersection} are present in more than one definition"
         if self.original_target is None:
             self.original_target = self.target
 
@@ -121,12 +146,22 @@ class FeatureConfig:
             feature_list += self.categorical_features + self.boolean_features
         if not exogenous:
             feature_list = list(set(feature_list) - set(self.exogenous_features))
+        feature_list = list(set(feature_list))
+        delete_index_cols = list(set(self.index_cols) - set(self.feature_list))
         (X, y, y_orig) = (
-            df.loc[:, feature_list + self.index_cols].set_index(self.index_cols),
-            df.loc[:, [self.target] + self.index_cols].set_index(self.index_cols) if self.target in df.columns else None,
+            df.loc[:, set(feature_list + self.index_cols)]
+            .set_index(self.index_cols, drop=False)
+            .drop(columns=delete_index_cols),
+            df.loc[:, [self.target] + self.index_cols].set_index(
+                self.index_cols, drop=True
+            )
+            if self.target in df.columns
+            else None,
             df.loc[:, [self.original_target] + self.index_cols].set_index(
-                self.index_cols
-            ) if self.original_target in df.columns else None,
+                self.index_cols, drop=True
+            )
+            if self.original_target in df.columns
+            else None,
         )
         return X, y, y_orig
 
@@ -163,10 +198,10 @@ class ModelConfig:
     )
 
     def __post_init__(self):
-        assert (
-            not(self.encode_categorical and self.categorical_encoder is None)
+        assert not (
+            self.encode_categorical and self.categorical_encoder is None
         ), "`categorical_encoder` cannot be None if `encode_categorical` is True"
-    
+
     def clone(self):
         self.model = clone(self.model)
         return self
@@ -185,10 +220,10 @@ class MLForecast:
         Args:
             model_config (ModelConfig): Instance of the ModelConfig object defining the model
             feature_config (FeatureConfig): Instance of the FeatureConfig object defining the features
-            missing_config (MissingValueConfig, optional): Instance of the MissingValueConfig object 
+            missing_config (MissingValueConfig, optional): Instance of the MissingValueConfig object
                 defining how to fill missing values. Defaults to None.
-            target_transformer (object, optional): Instance of target transformers from src.transforms. 
-                Should support `fit`, `transform`, and `inverse_transform`. It should also 
+            target_transformer (object, optional): Instance of target transformers from src.transforms.
+                Should support `fit`, `transform`, and `inverse_transform`. It should also
                 return `pd.Series` with datetime index to work without an error. Defaults to None.
         """
         self.model_config = model_config
@@ -200,7 +235,7 @@ class MLForecast:
             self._scaler = StandardScaler()
         if self.model_config.encode_categorical:
             self._cat_encoder = self.model_config.categorical_encoder
-            self._encoded_categorical_features = (
+            self._encoded_categorical_features = copy.deepcopy(
                 self.feature_config.categorical_features
             )
 
@@ -208,48 +243,60 @@ class MLForecast:
         self,
         X: pd.DataFrame,
         y: Union[pd.Series, np.ndarray],
-        is_transformed: bool=False,
-        fit_kwargs: Dict={},
+        is_transformed: bool = False,
+        fit_kwargs: Dict = {},
     ):
         """Handles standardization, missing value handling, and training the model
 
         Args:
             X (pd.DataFrame): The dataframe with the features as columns
             y (Union[pd.Series, np.ndarray]): Dataframe, Series, or np.ndarray with the targets
-            is_transformed (bool, optional): Whether the target is already transformed. 
-            If `True`, fit wont be transforming the target using the target_transformer 
+            is_transformed (bool, optional): Whether the target is already transformed.
+            If `True`, fit wont be transforming the target using the target_transformer
                 if provided. Defaults to False.
-            fit_kwargs (Dict, optional): The dictionary with keyword args to be passed to the 
+            fit_kwargs (Dict, optional): The dictionary with keyword args to be passed to the
                 fit funciton of the model. Defaults to {}.
         """
         missing_feats = difference_list(X.columns, self.feature_config.feature_list)
-        if len(missing_feats)>0:
-            warnings.warn(f"Some features in defined in FeatureConfig is not present in the dataframe. Ignoring these features: {missing_feats}")
-        self._continuous_feats = intersect_list(self.feature_config.continuous_features, X.columns)
-        self._categorical_feats = intersect_list(self.feature_config.categorical_features, X.columns)
-        self._boolean_feats = intersect_list(self.feature_config.boolean_features, X.columns)
+        if len(missing_feats) > 0:
+            warnings.warn(
+                f"Some features in defined in FeatureConfig is not present in the dataframe. Ignoring these features: {missing_feats}"
+            )
+        self._continuous_feats = intersect_list(
+            self.feature_config.continuous_features, X.columns
+        )
+        self._categorical_feats = intersect_list(
+            self.feature_config.categorical_features, X.columns
+        )
+        self._boolean_feats = intersect_list(
+            self.feature_config.boolean_features, X.columns
+        )
         if self.model_config.fill_missing:
             X = self.missing_config.impute_missing_values(X)
         if self.model_config.encode_categorical:
-            missing_cat_cols = difference_list(intersect_list(X.columns.tolist(), self.feature_config.categorical_features), self.model_config.categorical_encoder.cols)
-            assert len(missing_cat_cols)==0, f"These categorical features are not handled by the categorical_encoder : {missing_cat_cols}"
+            missing_cat_cols = difference_list(
+                self._categorical_feats,
+                self.model_config.categorical_encoder.cols,
+            )
+            assert (
+                len(missing_cat_cols) == 0
+            ), f"These categorical features are not handled by the categorical_encoder : {missing_cat_cols}"
             X = self._cat_encoder.fit_transform(X, y)
-            self._encoded_categorical_features = (
-                self.model_config.categorical_encoder.get_feature_names()
+            self._encoded_categorical_features = difference_list(
+                self.model_config.categorical_encoder.get_feature_names(),
+                self.feature_config.continuous_features
+                + self.feature_config.boolean_features,
             )
         else:
             self._encoded_categorical_features = []
         if self.model_config.normalize:
             X[
-                self._continuous_feats
-                + self._encoded_categorical_features
+                self._continuous_feats + self._encoded_categorical_features
             ] = self._scaler.fit_transform(
-                X[
-                    self._continuous_feats
-                    + self._encoded_categorical_features
-                ]
+                X[self._continuous_feats + self._encoded_categorical_features]
             )
         self._train_features = X.columns.tolist()
+        # print(len(self._train_features))
         if not is_transformed and self.target_transformer is not None:
             y = self.target_transformer.fit_transform(y)
         self._model.fit(X, y, **fit_kwargs)
@@ -264,20 +311,18 @@ class MLForecast:
         Returns:
             pd.Series: predictions using the model as a pandas Series with datetime index
         """
-        assert len(intersect_list(self._train_features, X.columns))==len(self._train_features), f"All the features during training is not available while predicting: {difference_list(self._train_features, X.columns)}"
+        assert len(intersect_list(self._train_features, X.columns)) == len(
+            self._train_features
+        ), f"All the features during training is not available while predicting: {difference_list(self._train_features, X.columns)}"
         if self.model_config.fill_missing:
             X = self.missing_config.impute_missing_values(X)
         if self.model_config.encode_categorical:
             X = self._cat_encoder.transform(X)
         if self.model_config.normalize:
             X[
-                self._continuous_feats
-                + self._encoded_categorical_features
+                self._continuous_feats + self._encoded_categorical_features
             ] = self._scaler.transform(
-                X[
-                    self._continuous_feats
-                    + self._encoded_categorical_features
-                ]
+                X[self._continuous_feats + self._encoded_categorical_features]
             )
         y_pred = pd.Series(
             self._model.predict(X).ravel(),
@@ -290,8 +335,8 @@ class MLForecast:
         return y_pred
 
     def feature_importance(self) -> pd.DataFrame:
-        """Generates the feature importance dataframe, if available. For linear 
-            models the coefficients are used and tree based models use the inbuilt 
+        """Generates the feature importance dataframe, if available. For linear
+            models the coefficients are used and tree based models use the inbuilt
             feature importance. For the rest of the models, it returns an empty dataframe.
 
         Returns:

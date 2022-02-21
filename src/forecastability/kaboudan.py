@@ -3,8 +3,7 @@ import numpy as np
 from darts import TimeSeries
 import warnings
 
-from darts.metrics import mse 
-from darts.metrics.metrics import _get_values_or_raise, _remove_nan_union
+from src.utils.ts_utils import _remove_nan_union
 
 def sse(y_true: np.ndarray,
         y_pred: np.ndarray):
