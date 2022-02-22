@@ -45,7 +45,7 @@ dependencies:
     - window_ops
     - tsfel
     - pymannkendall
-    - fancyimpute
+    # - fancyimpute
     - jupyterlab-code-formatter>=1.4.10
     - aquirdturtle_collapsible_headings>=3.1.0
     # - matplotlib==2.0.0  # pin version for pip
