@@ -43,6 +43,7 @@ dependencies:
     - kaggle>=1.5.2
     - missingno>=0.5.0
     - window_ops
+    - tsfel
     - pymannkendall
     - fancyimpute
     - jupyterlab-code-formatter>=1.4.10
