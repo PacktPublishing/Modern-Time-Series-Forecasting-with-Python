@@ -141,7 +141,7 @@ class FeatureConfig:
     def get_X_y(
         self, df: pd.DataFrame, categorical: bool = False, exogenous: bool = False
     ):
-        feature_list = self.continuous_features
+        feature_list = copy.deepcopy(self.continuous_features)
         if categorical:
             feature_list += self.categorical_features + self.boolean_features
         if not exogenous:

@@ -1,4 +1,4 @@
-name: modern_ts
+name: modern_ts_v3
 channels:
   - pytorch
   - conda-forge
@@ -23,15 +23,19 @@ dependencies:
   - python-kaleido==0.1.0
   - pyarrow
   - numpy
+  - neuralforecast
   - scipy
   - tqdm
   - matplotlib
   - humanize
+  - optuna
+  - pytorch-forecasting
   - numba
   - holidays
   - seaborn
   - statsmodels
-  - u8darts==0.14.0
+  - u8darts
+  #- python-graphviz
   #- u8darts-all
   - pytorch::pytorch
   - pytorch::torchvision
@@ -43,9 +47,14 @@ dependencies:
     - kaggle>=1.5.2
     - missingno>=0.5.0
     - window_ops
-    - tsfel
     - pymannkendall
-    # - fancyimpute
+    - fancyimpute
+    - tsfel
+    - rich
+    - git+https://github.com/manujosephv/pytorch_tabular.git@76e83fb #specifying a commit that is working
+    #- pytorch_tabular #Make sure pandas==1.1.5 is removed
+    - omegaconf==2.1.2
+    #- tensor-sensor[torch]
     - jupyterlab-code-formatter>=1.4.10
     - aquirdturtle_collapsible_headings>=3.1.0
     # - matplotlib==2.0.0  # pin version for pip
