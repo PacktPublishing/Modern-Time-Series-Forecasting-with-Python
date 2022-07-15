@@ -54,7 +54,7 @@ dependencies:
     - git+https://github.com/manujosephv/pytorch_tabular.git@76e83fb #specifying a commit that is working
     #- pytorch_tabular #Make sure pandas==1.1.5 is removed
     - omegaconf==2.1.2
-    #- tensor-sensor[torch]
+    - tensor-sensor[torch]
     - jupyterlab-code-formatter>=1.4.10
     - aquirdturtle_collapsible_headings>=3.1.0
     # - matplotlib==2.0.0  # pin version for pip
