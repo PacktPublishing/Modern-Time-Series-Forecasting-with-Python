@@ -11,10 +11,16 @@ import torch
 import torch.nn as nn
 import torchmetrics
 from omegaconf import DictConfig, OmegaConf
-from torch import Tensor
+from torch import Tensor, dropout
 import enum
 
-from src.dl.attention import GeneralAttention, AdditiveAttention, DotProductAttention, ConcatAttention
+from src.dl.attention import (
+    GeneralAttention,
+    AdditiveAttention,
+    DotProductAttention,
+    ConcatAttention,
+)
+
 # from attention import (
 #     GeneralAttention,
 #     AdditiveAttention,
@@ -418,11 +424,13 @@ class Seq2SeqwAttnConfig:
             "GRU",
             "RNN",
         ], f"{self.decoder_type} is not a valid RNN type"
-        effective_encoder_hidden_size = (
-            self.encoder_params["hidden_size"]
-            * (2 if self.encoder_params["bidirectional"] else 1)
+        effective_encoder_hidden_size = self.encoder_params["hidden_size"] * (
+            2 if self.encoder_params["bidirectional"] else 1
         )
-        assert self.decoder_params["input_size"] == self.encoder_params['input_size'] + effective_encoder_hidden_size, (
+        assert (
+            self.decoder_params["input_size"]
+            == self.encoder_params["input_size"] + effective_encoder_hidden_size
+        ), (
             f"Encoder input size {self.encoder_params['input_size']} + "
             f"Encoder hidden size (*2 if bi directional) {effective_encoder_hidden_size} != "
             f"Decoder input size {self.decoder_params['input_size']}"
@@ -535,7 +543,9 @@ class Seq2SeqwAttnModel(BaseModel):
         y_hat = torch.zeros_like(y, device=y.device)
         dec_input = x[:, -1:, :]
         for i in range(y.size(1)):
-            top_h = self._get_top_layer_hidden_state(h) # --> (batch_size, hidden_size*2 if bidirectional)
+            top_h = self._get_top_layer_hidden_state(
+                h
+            )  # --> (batch_size, hidden_size*2 if bidirectional)
             context = self.attention(
                 top_h.unsqueeze(1), o
             )  # --> (batch_size, hidden_size)
@@ -559,8 +569,136 @@ class Seq2SeqwAttnModel(BaseModel):
         return y_hat
 
 
+class PositionalEncoding(nn.Module):
+    """Positional encoding."""
+
+    def __init__(self, num_hiddens, dropout=0.0, max_len=1000):
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(dropout)
+        # Create a long enough `P`
+        self.P = torch.zeros((1, max_len, num_hiddens))
+        X = torch.arange(max_len, dtype=torch.float32).reshape(-1, 1) / torch.pow(
+            10000, torch.arange(0, num_hiddens, 2, dtype=torch.float32) / num_hiddens
+        )
+        self.P[:, :, 0::2] = torch.sin(X)
+        self.P[:, :, 1::2] = torch.cos(X)
+
+    def forward(self, X):
+        X = X + self.P[:, : X.shape[1], :].to(X.device)
+        return self.dropout(X)
+
+
+@dataclass
+class TransformerConfig:
+    """Configuration for Transformer"""
+
+    input_size: int
+    d_model: int
+    n_heads: int
+    n_layers: int
+    ff_multiplier: int = 4
+    activation: str = "relu"  #'gelu'
+    multi_step_horizon: int = 1
+    dropout: float = 0.0
+    learning_rate: float = field(default=1e-3)
+    optimizer_params: Dict = field(default_factory=dict)
+    lr_scheduler: Optional[str] = field(default=None)
+    lr_scheduler_params: Dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        assert self.activation in [
+            "relu",
+            "gelu",
+        ], "Invalid activation. Should be relu or gelu"
+
+
+class TransformerModel(BaseModel):
+    def __init__(
+        self,
+        config: DictConfig,
+        **kwargs,
+    ):
+        super().__init__(config)
+
+    def _build_network(self):
+        self.input_projection = nn.Linear(
+            self.hparams.input_size, self.hparams.d_model, bias=False
+        )
+        self.pos_encoder = PositionalEncoding(self.hparams.d_model)
+        self.encoder_layer = nn.TransformerEncoderLayer(
+            d_model=self.hparams.d_model,
+            nhead=self.hparams.n_heads,
+            dropout=self.hparams.dropout,
+            dim_feedforward=self.hparams.d_model * self.hparams.ff_multiplier,
+            activation=self.hparams.activation,
+            batch_first=True,
+        )
+        self.transformer_encoder = nn.TransformerEncoder(
+            self.encoder_layer, num_layers=self.hparams.n_layers
+        )
+        # self.decoder = nn.Linear(self.hparams.d_model, self.hparams.multi_step_horizon)
+        self.decoder = nn.Sequential(nn.Linear(self.hparams.d_model, 100),
+            nn.ReLU(),
+            nn.Linear(100, self.hparams.multi_step_horizon)
+        )
+        self._src_mask = None
+
+    def _generate_square_subsequent_mask(self, sz, reset_mask=False):
+        if self._src_mask is None or reset_mask:
+            mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+            mask = (
+                mask.float()
+                .masked_fill(mask == 0, float("-inf"))
+                .masked_fill(mask == 1, float(0.0))
+            )
+            self._src_mask = mask
+        return self._src_mask
+
+    def forward(self, batch: Tuple[torch.Tensor, torch.Tensor]):
+        x, y = batch
+        mask = self._generate_square_subsequent_mask(x.shape[1]).to(x.device)
+        # Projecting input dimension to d_model
+        x_ = self.input_projection(x)
+        # Adding positional encoding
+        x_ = self.pos_encoder(x_)
+        # Encoding the input
+        x_ = self.transformer_encoder(x_, mask)
+        # Decoding the input
+        y_hat = self.decoder(x_)
+        # constructing a shifted by one target so that all the outputs from the decoder can be trained
+        # also unfolding so that at each position we can train all H horizon forecasts
+        y = torch.cat([x[:, 1:, :], y], dim=1).squeeze(-1).unfold(1, y.size(1), 1)
+        return y_hat, y
+
+    def predict(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], ret_model_output: bool = False
+    ):
+        with torch.no_grad():
+            y_hat, _ = self.forward(batch)
+            # We only need the last position prediction in prediction task
+            y_hat = y_hat[:, -1, :].unsqueeze(1)
+        return y_hat
+
+
+# h=5
 # x = torch.rand(256, 48, 1)
-# y = torch.rand(256, 1, 1)
+# y = torch.rand(256, h, 1)
+# tr_config = TransformerConfig(
+#     input_size=1,
+#     d_model=64,
+#     n_heads=8,
+#     n_layers=6,
+#     ff_multiplier=4,
+#     activation="relu",
+#     multistep_ff=False,
+#     multi_step_horizon=h,
+#     teacher_forcing_ratio=0.5,
+# )
+# model = TransformerModel(tr_config)
+# y_hat, y_ = model.forward((x, y))
+# print(y_hat.shape)
+# print(y_.shape)
+
 # encoder_config = RNNConfig(
 #     input_size=1,
 #     hidden_size=128,
