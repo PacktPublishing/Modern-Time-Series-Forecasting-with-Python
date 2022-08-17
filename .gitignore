@@ -144,3 +144,4 @@ imgs/
 test.py
 .pt_tmp/
 notebooks/Chapter12/ft_transformer_global/
+lightning_logs/

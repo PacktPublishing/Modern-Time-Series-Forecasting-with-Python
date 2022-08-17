@@ -198,6 +198,7 @@ class SingleStepRNNModel(BaseModel):
                 hidden_size=self.hparams.hidden_size,
                 num_layers=self.hparams.num_layers,
                 batch_first=True,
+                bidirectional=self.hparams.bidirectional,
             )
         elif self.hparams.rnn_type == "LSTM":
             self.rnn = nn.LSTM(
@@ -205,6 +206,7 @@ class SingleStepRNNModel(BaseModel):
                 hidden_size=self.hparams.hidden_size,
                 num_layers=self.hparams.num_layers,
                 batch_first=True,
+                bidirectional=self.hparams.bidirectional,
             )
         elif self.hparams.rnn_type == "GRU":
             self.rnn = nn.GRU(
@@ -212,6 +214,7 @@ class SingleStepRNNModel(BaseModel):
                 hidden_size=self.hparams.hidden_size,
                 num_layers=self.hparams.num_layers,
                 batch_first=True,
+                bidirectional=self.hparams.bidirectional,
             )
         else:
             raise ValueError("Invalid RNN type")
@@ -224,7 +227,7 @@ class SingleStepRNNModel(BaseModel):
         x, _ = self.rnn(x)  # --> (batch_size, seq_len, hidden_size)
         x = self.fc(x)  # --> (batch_size, seq_len, 1)
         # shifting the input by one and concatenating with the output to get the target
-        y = torch.cat([x[:, 1:, :], y], dim=1)  # --> (batch_size, seq_len, 1)
+        y = torch.cat([x[:, 1:, :], y], dim=1)  # --> (batch_size, seq_len, 1) #TODO This is wrong. Fix it
         return x, y
 
     def predict(
