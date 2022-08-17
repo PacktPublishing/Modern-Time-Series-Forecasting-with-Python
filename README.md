@@ -43,6 +43,7 @@ Alternative 2
 4. Unzip `hhblock_dataset` to get the raw files we want to work with.
 
 ### Final Folder Structure after dataset extraction
+```
 data
 ├── london_smart_meters
 │   ├── hhblock_dataset
@@ -53,7 +54,7 @@ data
 ├── uk_bank_holidays.csv
 ├── weather_daily_darksky.csv
 ├── weather_hourly_darksky.csv
-
+```
 # Blocks vs RAM
 
 * 1 or <1 Block for 4GB RAM
