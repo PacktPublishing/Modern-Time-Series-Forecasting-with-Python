@@ -141,12 +141,13 @@ def download_kaggle_dataset(
     if api is not None:
         if competition:
             _download_competition_dataset(api, dataset_details)
+            logger.info("Donwload completed. Unzipping..")
             _unzip(dataset_details["path"], dataset_details["filename"], delete_zip=True)
         else:
             _download_dataset(api, dataset_details)
     else:
         raise ValueError(
-            "Kaggle API wasn't able to autheticate. Please provide username and key."
+            "Kaggle API wasn't able to authenticate. Please provide username and key."
         )
 
 
@@ -220,10 +221,10 @@ def download_london_smart_meters(username=None, key=None):
     dataset_details = DATASETS["London Smart Meters"]
     download_kaggle_dataset(dataset_details, username, key, competition=False)
     #Supplementary cleanup
-    os.remove(DATA_PATH/dataset_details['path']/"hhblock_dataset.zip")
-    os.remove(DATA_PATH/dataset_details['path']/"halfhourly_dataset.zip")
-    os.remove(DATA_PATH/dataset_details['path']/"daily_dataset.zip")
-    os.remove(DATA_PATH/dataset_details['path']/"daily_dataset.csv.gz")
+    # os.remove(DATA_PATH/dataset_details['path']/"hhblock_dataset.zip")
+    # os.remove(DATA_PATH/dataset_details['path']/"halfhourly_dataset.zip")
+    # os.remove(DATA_PATH/dataset_details['path']/"daily_dataset.zip")
+    # os.remove(DATA_PATH/dataset_details['path']/"daily_dataset.csv.gz")
 
 def download_tourism():
     logger.info("Downloading Tourism Dataset...")
