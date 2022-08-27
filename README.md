@@ -37,18 +37,18 @@ Alternative 1
         c. The “kaggle.json” file will be downloaded. Place the file in `api_keys` folder.
 3. Run the following command from the root directory of the Github repo project you checked out as part of the environment setup. 
     `kaggle datasets download -d jeanmidev/smart-meters-in-london -p data/london_smart_meters –unzip`
-4. Make necessary changes and arrange the files as expectsd (in the next section)
+4. Make necessary changes and arrange the files as expected (in the next section)
 
 Alternative 2
 1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab
 2. Go to https://www.kaggle.com/jeanmidev/smart-meters-in-london and download the dataset
 3. Unzip the contents to `data/london_smart_meters`
 4. Unzip `hhblock_dataset` to get the raw files we want to work with.
-5. Make necessary changes and arrange the files as expectsd (in the next section)
+5. Make necessary changes and arrange the files as expected (in the next section)
 
 ### Final Folder Structure after dataset extraction
 
-These are the necessary files. If there are additional files, it is okay.
+These are the necessary files in the folder structure the code expects. If there are additional files, it is okay.
 ```
 data
 ├── london_smart_meters
