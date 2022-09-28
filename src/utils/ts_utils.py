@@ -165,3 +165,70 @@ def mse(actuals, predictions):
 
 def forecast_bias_aggregate(actuals, predictions):
     return 100*(np.nansum(predictions)-np.nansum(actuals))/np.nansum(actuals)
+
+def rmsse(
+    actual_series,
+    pred_series,
+    insample,
+    m = 1,
+    intersect = True,
+    *,
+    reduction = np.mean,
+):
+
+    def _multivariate_mase(
+        actual_series,
+        pred_series,
+        insample,
+        m,
+        intersect,
+        reduction,
+    ):
+
+        assert actual_series.width == pred_series.width, "The two TimeSeries instances must have the same width."
+        
+        assert actual_series.width == insample.width, "The insample TimeSeries must have the same width as the other series."
+        
+        assert insample.end_time() + insample.freq == pred_series.start_time(), "The pred_series must be the forecast of the insample series"
+
+        insample_ = (
+            insample.quantile_timeseries(quantile=0.5)
+            if insample.is_stochastic
+            else insample
+        )
+
+        value_list = []
+        for i in range(actual_series.width):
+            # old implementation of mase on univariate TimeSeries
+            y_true, y_hat = _get_values_or_raise(
+                actual_series.univariate_component(i),
+                pred_series.univariate_component(i),
+                intersect,
+                remove_nan_union=False,
+            )
+
+            x_t = insample_.univariate_component(i).values()
+            errors = np.square(y_true - y_hat)
+            scale = np.mean(np.square(x_t[m:] - x_t[:-m]))
+            assert not np.isclose(scale, 0), "cannot use MASE with periodical signals"
+            value_list.append(np.sqrt(np.mean(errors / scale)))
+
+        return reduction(value_list)
+
+    if isinstance(actual_series, TimeSeries):
+        assert isinstance(pred_series, TimeSeries), "Expecting pred_series to be TimeSeries"
+        assert isinstance(insample, TimeSeries), "Expecting insample to be TimeSeries"
+        return _multivariate_mase(
+            actual_series=actual_series,
+            pred_series=pred_series,
+            insample=insample,
+            m=m,
+            intersect=intersect,
+            reduction=reduction,
+        )
+    else:
+        raise(
+            ValueError(
+                "Input type not supported, only TimeSeries is accepted."
+            )
+        )
