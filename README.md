@@ -54,7 +54,10 @@ data
 ├── london_smart_meters
 │   ├── hhblock_dataset
 │   │   ├── hhblock_dataset
-│   │       ├── hhblock_dataset.csv
+│   │       ├── block_0.csv
+│   │       ├── block_1.csv
+│   │       ├── ...
+│   │       ├── block_109.csv
 │── acorn_details.csv
 ├── informations_households.csv
 ├── uk_bank_holidays.csv

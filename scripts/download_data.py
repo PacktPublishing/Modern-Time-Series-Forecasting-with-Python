@@ -238,8 +238,5 @@ def download_tourism():
 # download_turkish_sales_data()
 # download_london_smart_meters()
 # download_tourism()
-download_london_smart_meters()
-
-# from src.utils.data_utils import convert_tsf_to_dataframe
-
-# loaded_data, frequency, forecast_horizon, contain_missing_values, contain_equal_length = convert_tsf_to_dataframe("data/electricity_demand/elecdemand_dataset.tsf")
+if __name__ == "__main__":
+    download_london_smart_meters()
