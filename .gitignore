@@ -143,6 +143,6 @@ imgs/
 
 test.py
 .pt_tmp/
-notebooks/Chapter12/ft_transformer_global/
+notebooks/Chapter13/ft_transformer_global/
 lightning_logs/
-notebooks/Chapter15/saved_weights
+notebooks/Chapter16/saved_weights
