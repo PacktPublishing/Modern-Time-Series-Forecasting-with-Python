@@ -29,17 +29,7 @@ Now wait!
 
 In case the above is not working for you:
 
-Alternative 1
-1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab
-2. Download the `kaggle.json` and place it in `api_keys` folder.
-        a. Go to “Account”, go down the page, and find the “API” section.
-        b. Click the “Create New API Token” button.
-        c. The “kaggle.json” file will be downloaded. Place the file in `api_keys` folder.
-3. Run the following command from the root directory of the Github repo project you checked out as part of the environment setup. 
-    `kaggle datasets download -d jeanmidev/smart-meters-in-london -p data/london_smart_meters –unzip`
-4. Make necessary changes and arrange the files as expected (in the next section)
-
-Alternative 2
+Alternative
 1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab
 2. Go to https://www.kaggle.com/jeanmidev/smart-meters-in-london and download the dataset
 3. Unzip the contents to `data/london_smart_meters`
