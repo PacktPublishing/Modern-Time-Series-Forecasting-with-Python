@@ -1,59 +1,59 @@
 # Modern-Time-Series-Forecasting-with-Python-
 Modern Time Series Forecasting with Python, published by Packt
 
-## Instructions to Setup the Environment
-1. Install Anaconda or Miniconda if not done already - `https://www.anaconda.com/products/individual` or `https://docs.conda.io/en/latest/miniconda.html` 
-1a. If you are running windows and have not installed Build Tools for Visual Studio in your machine, you need to install that for `fancyimpute` to work. Head over to Additional Installations and complete it.
-2. From the root directory of thr repo execute the below command
+# Setup the environment
+The easiest way to setup the environment is by using Anaconda, a distribution of Python for scientific computing. You can use Miniconda, a minimal installer for conda as well if you do not want the pre-installed packages that come with Anaconda. 
+
+1.	Install Anaconda/Miniconda: Anaconda can be installed from https://www.anaconda.com/products/distribution. Depending on your operating system choose the corresponding file and follow instructions. Or you can install Miniconda from here: https://docs.conda.io/en/latest/miniconda.html#latest-miniconda-installer-links.
+2.	Open conda prompt: To open Anaconda Prompt (or terminal on Linux or macOS):
+    1.	Windows: Open the Anaconda Prompt (Start >> Anaconda Prompt)
+    2.	macOS: Open Launchpad and then open Terminal. Type `conda activate`
+    3.	Linux: Open Terminal. Type `conda activate`
+3.	Navigate to the downloaded code: Use operating system specific commands to navigate to the folder where you have downloaded the code. For instance, in Windows, use `cd`.
+4.	Install the environment: Using the anaconda_env.yml file that is included install the environment. 
 `conda env create -f anaconda_env.yml`
-3. Grab a cup of coffee, cause this can take a while.
-
-### Additional Installations, if needed
-If you are on Windows and have not installed Build Tools for Visual Studio in your machine, you need to install that for `fancyimpute` to work.
-https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
-
-Select: Workloads → Desktop development with C++
-
-Windows Python needs Visual C++ libraries installed via the SDK to build code, such as via setuptools.extension.Extension or numpy.distutils.core.Extension. For example, building f2py modules in Windows with Python requires Visual C++ SDK as installed above. On Linux and Mac, the C++ libraries are installed with the compiler.
-## Instructions to Download Data
-
-1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab
-2. Download the `kaggle.json` and place it in `api_keys` folder and proceed to step 2.
-    2a. Go to “Account”, go down the page, and find the “API” section.
-    2b. Click the “Create New API Token” button.
-    2c. The “kaggle.json” file will be downloaded. Place the file in `api_keys` folder.
-3. Activate the anaconda environment - `conda activate modern_ts`
-4. Run the following in the anaconda prompt from the root working directory of the Github repo - `python scripts/download_data.py`
-
-Now wait!
-
-In case the above is not working for you:
-
-Alternative
-1. If you don't have an account at Kaggle, head over to Kaggle and quickly register. https://www.kaggle.com/account/login?phase=startRegisterTab
-2. Go to https://www.kaggle.com/jeanmidev/smart-meters-in-london and download the dataset
-3. Unzip the contents to `data/london_smart_meters`
-4. Unzip `hhblock_dataset` to get the raw files we want to work with.
-5. Make necessary changes and arrange the files as expected (in the next section)
-
-### Final Folder Structure after dataset extraction
-
-These are the necessary files in the folder structure the code expects. If there are additional files, it is okay.
+	This creates a new environment under the name, `modern_ts`, and will install all the required libraries in the environment. This can take a while.
+5.	Checking the installation: We can check if all the libraries required for the book is installed properly by executing a script in the downloaded code folder
+python test_installation.py
+6.	Activating the environment and Running Notebooks: Every time you want to run the notebooks, first activate the environment using the command `conda activate modern_ts` and then use Jupyter Notebook (`jupyter notebook`) or Jupyter Lab (`jupyter lab`) according to your preference.
+# Download the Data
+You are going to be using a single dataset throughout the book. The book uses London Smart Meters Dataset from Kaggle for this purpose. Therefore, if you don’t have an account with Kaggle, please go ahead and make one. https://www.kaggle.com/account/login?phase=startRegisterTab
+There are two ways you can download the data- automated and manual. 
+For the automated way, we need to download a key from Kaggle. Let’s do that first (if you are going to choose the manual way, you can skip this).
+1.	Click on your profile picture on the top right corner of Kaggle
+2.	Select "Account”, and find the section for “API”
+3.	Click the “Create New API Token” button. A file by the name kaggle.json will be downloaded.
+4.	Copy the file and place it in the api_keys folder in the downloaded code folder.
+Now that we have the kaggle.json downloaded and placed in the right folder, let’s look at the three methods to download data:
+## Method 1: Automated Download
+1.	Activate the environment using conda activate modern_ts
+2.	Run the provided script from the root directory of downloaded code
+python scripts/download_data.py
+That’s it. Now just wait for the script to finish downloading, unzipping and organize the files in the expected format.
+## Method 2: Manual Download
+1.	Go to https://www.kaggle.com/jeanmidev/smart-meters-in-london and download the dataset
+2.	Unzip the contents to data/london_smart_meters
+3.	Unzip hhblock_dataset to get the raw files we want to work with.
+4.	Make sure the unzipped files are in the expected folder structure (next section)
+Now that you have downloaded the data, we need to make sure it is arranged in the below folder structure. Automated Download does it automatically, but for Manual Download this structure needs to be created. To avoid ambiguity, the expected folder structure can be found below:
 ```
 data
 ├── london_smart_meters
-│   ├── hhblock_dataset
-│   │   ├── hhblock_dataset
-│   │       ├── block_0.csv
-│   │       ├── block_1.csv
-│   │       ├── ...
-│   │       ├── block_109.csv
+│   ├── hhblock_dataset
+│   │   ├── hhblock_dataset
+│   │       ├── block_0.csv
+│   │       ├── block_1.csv
+│   │       ├── ...
+│   │       ├── block_109.csv
 │── acorn_details.csv
 ├── informations_households.csv
 ├── uk_bank_holidays.csv
 ├── weather_daily_darksky.csv
 ├── weather_hourly_darksky.csv
 ```
+There can be additional files as part of the extraction process. You can remove them without impacting anything. There is a helpful script which checks this structure.
+python test_data_download.py
+
 # Blocks vs RAM
 
 * 1 or <1 Block for 4GB RAM
