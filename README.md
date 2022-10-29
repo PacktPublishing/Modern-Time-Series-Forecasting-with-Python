@@ -56,6 +56,8 @@ python test_data_download.py
 
 # Blocks vs RAM
 
+Number of blocks to select from the dataset is dependent on how much RAM you have in your machine. Although, these are not rules, but rough guidelines on how much blocks to choose based on your RAM is given below. If you still face problems, please experiment with lowering the number of blocks to make it work better for you.
+
 * 1 or <1 Block for 4GB RAM
 * 1 or 2 Blocks for 8GB RAM
 * 3 Blocks for 16GB RAM
