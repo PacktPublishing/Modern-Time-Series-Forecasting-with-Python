@@ -16,6 +16,18 @@ The easiest way to setup the environment is by using Anaconda, a distribution of
 5.	Checking the installation: We can check if all the libraries required for the book is installed properly by executing a script in the downloaded code folder
 python test_installation.py
 6.	Activating the environment and Running Notebooks: Every time you want to run the notebooks, first activate the environment using the command `conda activate modern_ts` and then use Jupyter Notebook (`jupyter notebook`) or Jupyter Lab (`jupyter lab`) according to your preference.
+
+## If anaconda installation stalls
+Sometimes the anaconda installation can stall at `Solving Environment`. This is because anaconda can sometimes be really slow at resolving package dependencies. We can get around this by using `Mamba`.
+
+`Mamba` is a fast, robust, and cross-platform package manager.
+
+It runs on Windows, OS X and Linux (ARM64 and PPC64LE included) and is fully compatible with conda packages and supports most of conda’s commands.
+
+All we need to do is:
+1. Install mamba - `conda install mamba -n base -c conda-forge`
+2. Instead of using conda, use mamba to install the environment - `mamba env create -f anaconda_env.yml`
+
 # Download the Data
 You are going to be using a single dataset throughout the book. The book uses London Smart Meters Dataset from Kaggle for this purpose. Therefore, if you don’t have an account with Kaggle, please go ahead and make one. https://www.kaggle.com/account/login?phase=startRegisterTab
 There are two ways you can download the data- automated and manual. 
