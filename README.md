@@ -1,5 +1,68 @@
-# Modern-Time-Series-Forecasting-with-Python-
-Modern Time Series Forecasting with Python, published by Packt
+# Modern Time Series Forecasting with Python
+
+<a href="https://www.packtpub.com/product/modern-time-series-forecasting-with-python/9781803246802?utm_source=github&utm_medium=repository&utm_campaign=9781803246802"><img src="https://static.packt-cdn.com/products/9781803241333/cover/smaller" alt="Modern Time Series Forecasting with Python" height="256px" align="right"></a>
+
+This is the code repository for [Modern Time Series Forecasting with Python](https://www.packtpub.com/product/modern-time-series-forecasting-with-python/9781803246802?utm_source=github&utm_medium=repository&utm_campaign=9781803246802), published by Packt.
+
+**Explore industry-ready time series forecasting using modern machine learning and deep learning**
+
+## What is this book about?
+We live in a serendipitous era where the explosion in the quantum of data collected and a renewed interest in data-driven techniques such as machine learning (ML), 
+has changed the landscape of analytics, and with it, time series forecasting. This book, filled with industry-tested tips and tricks, 
+takes you beyond commonly used classical statistical methods such as ARIMA and introduces to you the latest techniques from the world of ML.
+
+This book covers the following exciting features: 
+* Find out how to manipulate and visualize time series data like a pro
+* Set strong baselines with popular models such as ARIMA
+* Discover how time series forecasting can be cast as regression
+* Engineer features for machine learning models for forecasting
+* Explore the exciting world of ensembling and stacking models
+* Get to grips with the global forecasting paradigm
+* Understand and apply state-of-the-art DL models such as N-BEATS and Autoformer
+* Explore multi-step forecasting and cross-validation strategies
+
+If you feel this book is for you, get your [copy](https://www.amazon.com/dp/B09NC5XJ6D) today!
+
+<a href="https://www.packtpub.com/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/PacktPublishing/GitHub/master/GitHub.png" 
+alt="https://www.packtpub.com/" border="5" /></a>
+
+
+## Instructions and Navigations
+All of the code is organized into folders.
+
+The code will look like the following:
+```
+#Does not support missing values, so using imputed ts instead
+res = seasonal_decompose(ts, period=7*48, model="additive",
+extrapolate_trend="freq")
+```
+
+**Following is what you need for this book:**
+The book is for data scientists, data analysts, machine learning engineers, and Python developers who want to build industry-ready time series models. Since the book explains most concepts from the ground up, basic proficiency in Python is all you need. Prior understanding of machine learning or forecasting will help speed up your learning. 
+For experienced machine learning and forecasting practitioners, this book has a lot to offer in terms of advanced techniques and traversing the latest research frontiers in time series forecasting.	
+
+With the following software and hardware list you can run all code files present in the book (Chapter 1-19).
+
+
+
+
+We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/5NVrW).
+
+
+### Related products <Other books you may enjoy>
+* Intelligent Document Processing with AWS AI/ML [[Packt]](https://www.packtpub.com/product/intelligent-document-processing-with-aws-aiml/9781801810562) [[Amazon]](https://www.amazon.com/dp/1801073082)
+
+* Practical Deep Learning at Scale with MLflow [[Packt]](https://www.packtpub.com/product/practical-deep-learning-at-scale-with-mlflow/9781803241333) [[Amazon]](https://www.amazon.com/dp/180324366X)
+
+## Get to Know the Author
+**Manu Joseph**
+is a self-made data scientist with more than a decade of experience working with many
+Fortune 500 companies, enabling digital and AI transformations, specifically in machine learningbased demand forecasting. He is considered an expert, thought leader, and strong voice in the world
+of time series forecasting. Currently, Manu leads applied research at Thoucentric, where he advances
+research by bringing cutting-edge AI technologies to the industry. He is also an active open source
+contributor and has developed an open source library—PyTorch Tabular—which makes deep learning
+for tabular data easy and accessible. Originally from Thiruvananthapuram, India, Manu currently
+resides in Bengaluru, India, with his wife and son.
 
 # Setup the environment
 The easiest way to setup the environment is by using Anaconda, a distribution of Python for scientific computing. You can use Miniconda, a minimal installer for conda as well if you do not want the pre-installed packages that come with Anaconda. 
