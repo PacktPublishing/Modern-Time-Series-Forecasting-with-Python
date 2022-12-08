@@ -44,26 +44,6 @@ For experienced machine learning and forecasting practitioners, this book has a 
 With the following software and hardware list you can run all code files present in the book (Chapter 1-19).
 
 
-
-
-We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/5NVrW).
-
-
-### Related products <Other books you may enjoy>
-* Intelligent Document Processing with AWS AI/ML [[Packt]](https://www.packtpub.com/product/intelligent-document-processing-with-aws-aiml/9781801810562) [[Amazon]](https://www.amazon.com/dp/1801073082)
-
-* Practical Deep Learning at Scale with MLflow [[Packt]](https://www.packtpub.com/product/practical-deep-learning-at-scale-with-mlflow/9781803241333) [[Amazon]](https://www.amazon.com/dp/180324366X)
-
-## Get to Know the Author
-**Manu Joseph**
-is a self-made data scientist with more than a decade of experience working with many
-Fortune 500 companies, enabling digital and AI transformations, specifically in machine learningbased demand forecasting. He is considered an expert, thought leader, and strong voice in the world
-of time series forecasting. Currently, Manu leads applied research at Thoucentric, where he advances
-research by bringing cutting-edge AI technologies to the industry. He is also an active open source
-contributor and has developed an open source library—PyTorch Tabular—which makes deep learning
-for tabular data easy and accessible. Originally from Thiruvananthapuram, India, Manu currently
-resides in Bengaluru, India, with his wife and son.
-
 # Setup the environment
 The easiest way to setup the environment is by using Anaconda, a distribution of Python for scientific computing. You can use Miniconda, a minimal installer for conda as well if you do not want the pre-installed packages that come with Anaconda. 
 
@@ -137,6 +117,26 @@ Number of blocks to select from the dataset is dependent on how much RAM you hav
 * 1 or 2 Blocks for 8GB RAM
 * 3 Blocks for 16GB RAM
 * 5 Blocks for 32GB RAM
+
+We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/5NVrW).
+
+
+### Related products <Other books you may enjoy>
+* Intelligent Document Processing with AWS AI/ML [[Packt]](https://www.packtpub.com/product/intelligent-document-processing-with-aws-aiml/9781801810562) [[Amazon]](https://www.amazon.com/dp/1801073082)
+
+* Practical Deep Learning at Scale with MLflow [[Packt]](https://www.packtpub.com/product/practical-deep-learning-at-scale-with-mlflow/9781803241333) [[Amazon]](https://www.amazon.com/dp/180324366X)
+
+## Get to Know the Author
+**Manu Joseph**
+is a self-made data scientist with more than a decade of experience working with many
+Fortune 500 companies, enabling digital and AI transformations, specifically in machine learningbased demand forecasting. He is considered an expert, thought leader, and strong voice in the world
+of time series forecasting. Currently, Manu leads applied research at Thoucentric, where he advances
+research by bringing cutting-edge AI technologies to the industry. He is also an active open source
+contributor and has developed an open source library—PyTorch Tabular—which makes deep learning
+for tabular data easy and accessible. Originally from Thiruvananthapuram, India, Manu currently
+resides in Bengaluru, India, with his wife and son.
+
+
 
 ### Download a free PDF
 
