@@ -1,6 +1,6 @@
 # Modern Time Series Forecasting with Python
 
-<a href="https://www.packtpub.com/product/modern-time-series-forecasting-with-python/9781803246802?utm_source=github&utm_medium=repository&utm_campaign=9781803246802"><img src="https://static.packt-cdn.com/products/9781803241333/cover/smaller" alt="Modern Time Series Forecasting with Python" height="256px" align="right"></a>
+<a href="https://www.packtpub.com/product/modern-time-series-forecasting-with-python/9781803246802?utm_source=github&utm_medium=repository&utm_campaign=9781803246802"><img src="https://static.packt-cdn.com/products/9781803246802/cover/smaller" alt="Modern Time Series Forecasting with Python" height="256px" align="right"></a>
 
 This is the code repository for [Modern Time Series Forecasting with Python](https://www.packtpub.com/product/modern-time-series-forecasting-with-python/9781803246802?utm_source=github&utm_medium=repository&utm_campaign=9781803246802), published by Packt.
 
