@@ -41,7 +41,6 @@ extrapolate_trend="freq")
 The book is for data scientists, data analysts, machine learning engineers, and Python developers who want to build industry-ready time series models. Since the book explains most concepts from the ground up, basic proficiency in Python is all you need. Prior understanding of machine learning or forecasting will help speed up your learning. 
 For experienced machine learning and forecasting practitioners, this book has a lot to offer in terms of advanced techniques and traversing the latest research frontiers in time series forecasting.	
 
-With the following software and hardware list you can run all code files present in the book (Chapter 1-19).
 
 
 # Setup the environment
