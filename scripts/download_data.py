@@ -5,9 +5,10 @@ import json
 import os
 from pathlib import Path
 import zipfile
-from logger_api import get_logger
-
-logger = get_logger(__name__)
+# from logger_api import get_logger
+import logging
+logger = logging.getLogger(name)
+# logger = get_logger(__name__)
 
 DATA_PATH = Path("data")
 KAGGLE_JSON = Path("api_keys/kaggle.json")
