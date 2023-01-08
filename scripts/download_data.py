@@ -1,13 +1,10 @@
-import pandas as pd
-
-import requests
 import json
 import os
 from pathlib import Path
 import zipfile
 # from logger_api import get_logger
 import logging
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 # logger = get_logger(__name__)
 
 DATA_PATH = Path("data")
