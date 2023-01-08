@@ -83,7 +83,7 @@ def get_kaggle_username_key(username=None, key=None):
             kaggle_dict = json.load(f)
             username = kaggle_dict["username"]
             key = kaggle_dict["key"]
-        logger.info("Kaggle Username and Key retrieved from kaggle.json")
+        logger.info("Kaggle Username and Key retrieved from kaggle.json.")
         _authenticate_api = True
     else:
         logger.warning(
@@ -145,7 +145,7 @@ def download_kaggle_dataset(
             _download_dataset(api, dataset_details)
     else:
         raise ValueError(
-            "Kaggle API wasn't able to authenticate. Please provide username and key."
+            "Kaggle API wasn't able to authenticate. Please provide username and key. Refer to README for instructions on how to do that."
         )
 
 
