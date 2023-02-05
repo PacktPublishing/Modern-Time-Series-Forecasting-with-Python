@@ -46,11 +46,11 @@ dependencies:
     - missingno>=0.5.0
     - window_ops
     - pymannkendall
-    - fancyimpute
+    # - fancyimpute
     - tsfel
     - rich
-    - git+https://github.com/manujosephv/pytorch_tabular.git@76e83fb #specifying a commit that is working because of pandas depencency
-    - git+https://github.com/TimeSynth/TimeSynth.git
+    - git+https://github.com/manujosephv/pytorch_tabular.git@modern_ts_freeze #specifying a commit that is working because of pandas depencency
+    # - git+https://github.com/TimeSynth/TimeSynth.git
     - omegaconf==2.1.2
     - tensor-sensor[torch]
     - jupyterlab-code-formatter>=1.4.10
