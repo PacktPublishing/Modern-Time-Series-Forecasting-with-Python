@@ -73,6 +73,12 @@ All we need to do is:
 1. Install mamba - `conda install mamba -n base -c conda-forge`
 2. Instead of using conda, use mamba to install the environment - `mamba env create -f anaconda_env.yml`
 
+## Special Instructions for MacOS
+If the installation doesn't work for MacOS, please try the following:
+1.	In `anaconda_env.yml`, change the line `python-kaleido==0.1.0` to `python-kaleido>=0.1.0`
+2.  In `anaconda_env.yml`, change the line `statsforecast==0.6.0` to `statsforecast>=0.6.0`
+
+Now, try installing the environment again. If this doesn't work, please raise an issue on the GitHub repo.
 # Download the Data
 You are going to be using a single dataset throughout the book. The book uses London Smart Meters Dataset from Kaggle for this purpose. Therefore, if you don’t have an account with Kaggle, please go ahead and make one. https://www.kaggle.com/account/login?phase=startRegisterTab
 There are two ways you can download the data- automated and manual. 
