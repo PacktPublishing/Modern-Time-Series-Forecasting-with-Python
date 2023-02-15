@@ -11,8 +11,6 @@ import torch
 import torch.nn as nn
 import torchmetrics
 from omegaconf import DictConfig, OmegaConf
-from torch import Tensor, dropout
-import enum
 
 from src.dl.attention import (
     GeneralAttention,
@@ -222,12 +220,12 @@ class SingleStepRNNModel(BaseModel):
 
     def forward(self, batch: Tuple[torch.Tensor, torch.Tensor]):
         x, y = batch
-        assert y.size(1) == 1, "y should have only a single timestep"
         # x --> (batch_size, seq_len, input_size), y--> (batch_size, seq_len, 1)
+        assert y.size(1) == 1, "y should have only a single timestep"
+        # shifting the input by one and concatenating with the output to get the target
+        y = torch.cat([x[:, 1:, :], y], dim=1)  # --> (batch_size, seq_len, 1)
         x, _ = self.rnn(x)  # --> (batch_size, seq_len, hidden_size)
         x = self.fc(x)  # --> (batch_size, seq_len, 1)
-        # shifting the input by one and concatenating with the output to get the target
-        y = torch.cat([x[:, 1:, :], y], dim=1)  # --> (batch_size, seq_len, 1) #TODO This is wrong. Fix it
         return x, y
 
     def predict(
@@ -600,7 +598,7 @@ class TransformerConfig:
     n_heads: int
     n_layers: int
     ff_multiplier: int = 4
-    activation: str = "relu"  #'gelu'
+    activation: str = "relu"  # 'gelu'
     multi_step_horizon: int = 1
     dropout: float = 0.0
     learning_rate: float = field(default=1e-3)
@@ -640,9 +638,10 @@ class TransformerModel(BaseModel):
             self.encoder_layer, num_layers=self.hparams.n_layers
         )
         # self.decoder = nn.Linear(self.hparams.d_model, self.hparams.multi_step_horizon)
-        self.decoder = nn.Sequential(nn.Linear(self.hparams.d_model, 100),
+        self.decoder = nn.Sequential(
+            nn.Linear(self.hparams.d_model, 100),
             nn.ReLU(),
-            nn.Linear(100, self.hparams.multi_step_horizon)
+            nn.Linear(100, self.hparams.multi_step_horizon),
         )
         self._src_mask = None
 
