@@ -366,9 +366,9 @@ class Seq2SeqModel(BaseModel):
         )  # --> (batch_size, seq_len, hidden_size) , (num_layers, batch_size, hidden_size) (hidden size*2 and num_layers*2 if bidirectional)
         if self.hparams.decoder_type == "FC":
             if self.hparams.decoder_use_all_hidden:
-                y_hat = self.decoder(o.reshape(o.size(0), -1)).unsqueeze(-1)
+                y_hat = self.decoder(o.reshape(o.size(0), -1)).unsqueeze(1)
             else:
-                y_hat = self.decoder(o[:, -1, :]).unsqueeze(-1)
+                y_hat = self.decoder(o[:, -1, :]).unsqueeze(1)
 
         else:
             # Loop to generate target
