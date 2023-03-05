@@ -108,11 +108,11 @@ data
 │   │       ├── block_1.csv
 │   │       ├── ...
 │   │       ├── block_109.csv
-│── acorn_details.csv
-├── informations_households.csv
-├── uk_bank_holidays.csv
-├── weather_daily_darksky.csv
-├── weather_hourly_darksky.csv
+│   │── acorn_details.csv
+│   ├── informations_households.csv
+│   ├── uk_bank_holidays.csv
+│   ├── weather_daily_darksky.csv
+│   ├── weather_hourly_darksky.csv
 ```
 There can be additional files as part of the extraction process. You can remove them without impacting anything. There is a helpful script which checks this structure.
 python test_data_download.py
