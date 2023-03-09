@@ -1,14 +1,15 @@
 import itertools
 import math
 import random
-from typing import Callable, List, Tuple
 import warnings
+from typing import Callable, List, Tuple
 
 import numpy as np
 import pandas as pd
 from scipy import optimize
-from src.utils import ts_utils
 from tqdm.autonotebook import tqdm
+
+from src.utils import ts_utils
 
 
 def calculate_diversity(
@@ -368,7 +369,7 @@ def find_optimal_combination(
         loss_function,
         x0=[1 / len(candidates)] * len(candidates),
         constraints=({"type": "eq", "fun": lambda w: 1 - sum(w)}),
-        method="SLSQP",  #'SLSQP', Nelder-Mead
+        method="SLSQP",  # 'SLSQP', Nelder-Mead
         bounds=[(0.0, 1.0)] * len(candidates),
         options={"ftol": 1e-10},
     )["x"]

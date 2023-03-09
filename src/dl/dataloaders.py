@@ -1,15 +1,9 @@
-from typing import List, Tuple, Union
+from typing import Tuple, Union
+
 import numpy as np
-from numpy.lib.arraysetops import isin
 import pandas as pd
-
-import torch
-import torch.nn as nn
-
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
 import pytorch_lightning as pl
-
+from torch.utils.data import DataLoader
 
 # PyTorch Dataset class for time series data
 
@@ -34,12 +28,11 @@ class TimeSeriesDataset:
             n_test = int(n_test * len(data))
         if isinstance(data, pd.DataFrame):
             data = data.values
-        if data.ndim==1:
-            data = data.reshape(-1,1)
+        if data.ndim == 1:
+            data = data.reshape(-1, 1)
         if normalize == "global" and mode != "train":
             assert (
-                isinstance(normalize_params, tuple)
-                and len(normalize_params) == 2
+                isinstance(normalize_params, tuple) and len(normalize_params) == 2
             ), "If using Global Normalization, in valid and test mode normalize_params argument should be a tuple of precalculated mean and std"
         self.data = data.copy()
         self.n_val = n_val
@@ -82,7 +75,9 @@ class TimeSeriesDataset:
             self.data = (self.data - self.mean) / self.std
 
     def __len__(self):
-        return len(self.data) - self.horizon - self.window + 1 #to account for zero indexing
+        return (
+            len(self.data) - self.horizon - self.window + 1
+        )  # to account for zero indexing
 
     def __getitem__(self, idx):
         x = self.data[idx : idx + self.window, :]
@@ -115,7 +110,7 @@ class TimeSeriesDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.normalize = normalize
-        self._is_global = normalize=="global"
+        self._is_global = normalize == "global"
 
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
@@ -127,7 +122,7 @@ class TimeSeriesDataModule(pl.LightningDataModule):
                 n_val=self.n_val,
                 n_test=self.n_test,
                 normalize=self.normalize,
-                normalize_params= None,
+                normalize_params=None,
                 mode="train",
             )
             self.val = TimeSeriesDataset(
@@ -137,7 +132,9 @@ class TimeSeriesDataModule(pl.LightningDataModule):
                 n_val=self.n_val,
                 n_test=self.n_test,
                 normalize=self.normalize,
-                normalize_params= (self.train.mean, self.train.std) if self._is_global else None,
+                normalize_params=(self.train.mean, self.train.std)
+                if self._is_global
+                else None,
                 mode="val",
             )
         # Assign test dataset for use in dataloader(s)
@@ -149,7 +146,9 @@ class TimeSeriesDataModule(pl.LightningDataModule):
                 n_val=self.n_val,
                 n_test=self.n_test,
                 normalize=self.normalize,
-                normalize_params= (self.train.mean, self.train.std) if self._is_global else None,
+                normalize_params=(self.train.mean, self.train.std)
+                if self._is_global
+                else None,
                 mode="test",
             )
 
@@ -215,7 +214,7 @@ class TimeSeriesDataModule(pl.LightningDataModule):
 
 ################################################################################
 ##
-## Dataset class
+# Dataset class
 ##
 # class TimeSeriesDataset(Dataset):
 #     def __init__(self, global_state: GlobalState, data, mode="train",

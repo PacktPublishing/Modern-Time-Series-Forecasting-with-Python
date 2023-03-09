@@ -1,10 +1,8 @@
 """Base Model"""
-from dataclasses import dataclass, field
-import logging
-from abc import ABCMeta, abstractmethod
-from random import choices
 import random
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any, Dict, Optional, Tuple
 
 import pytorch_lightning as pl
 import torch
@@ -13,18 +11,11 @@ import torchmetrics
 from omegaconf import DictConfig, OmegaConf
 
 from src.dl.attention import (
-    GeneralAttention,
     AdditiveAttention,
-    DotProductAttention,
     ConcatAttention,
+    DotProductAttention,
+    GeneralAttention,
 )
-
-# from attention import (
-#     GeneralAttention,
-#     AdditiveAttention,
-#     DotProductAttention,
-#     ConcatAttention,
-# )
 
 ATTENTION_TYPES = {
     "dot": DotProductAttention,

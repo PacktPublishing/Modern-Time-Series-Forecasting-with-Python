@@ -1,17 +1,12 @@
 # https://github.com/thuml/Autoformer
 import math
-import os
-from math import sqrt
 
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.utils import weight_norm
 
 
-### layers.Embed
+# layers.Embed
 class PositionalEmbedding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEmbedding, self).__init__()
@@ -90,9 +85,7 @@ class TemporalEmbedding(nn.Module):
         # month_size = 13
         self.d_model = d_model
         # Embed = nn.Embedding
-        self.embeds = nn.ModuleList([
-            nn.Embedding(c, d_model) for c in cardinality
-        ])
+        self.embeds = nn.ModuleList([nn.Embedding(c, d_model) for c in cardinality])
         # if freq == "t":
         #     self.minute_embed = Embed(minute_size, d_model)
         # self.hour_embed = Embed(hour_size, d_model)
@@ -105,7 +98,7 @@ class TemporalEmbedding(nn.Module):
         B, L, N = x.shape
         embed_x = torch.empty(B, L, N, self.d_model, device=x.device)
         for i, embed in enumerate(self.embeds):
-            embed_x[:,:, i, :] = embed(x[:,:,i])
+            embed_x[:, :, i, :] = embed(x[:, :, i])
         return embed_x.sum(dim=-2, keepdim=False)
         # minute_x = (
         #     self.minute_embed(x[:, :, 4]) if hasattr(self, "minute_embed") else 0.0
@@ -158,8 +151,8 @@ class DataEmbedding_wo_pos(nn.Module):
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
         self.position_embedding = PositionalEmbedding(d_model=d_model)
-        self.temporal_embedding = (
-            TemporalEmbedding(d_model=d_model, cardinality=cardinality)
+        self.temporal_embedding = TemporalEmbedding(
+            d_model=d_model, cardinality=cardinality
         )
         self.dropout = nn.Dropout(p=dropout)
 
@@ -168,7 +161,7 @@ class DataEmbedding_wo_pos(nn.Module):
         return self.dropout(x)
 
 
-### Autocorrelation
+# Autocorrelation
 class AutoCorrelation(nn.Module):
     """
     AutoCorrelation Mechanism with the following two phases:
@@ -355,7 +348,7 @@ class AutoCorrelationLayer(nn.Module):
         return (self.out_projection(out), attn)
 
 
-## Autoformer Dec - Enc
+# Autoformer Dec - Enc
 
 
 class my_Layernorm(nn.Module):
@@ -564,7 +557,7 @@ class Decoder(nn.Module):
         return x, trend
 
 
-### Autoformer
+# Autoformer
 
 
 class AutoFormer(nn.Module):

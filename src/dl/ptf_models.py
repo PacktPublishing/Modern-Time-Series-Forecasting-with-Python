@@ -1,10 +1,10 @@
 """Base Model"""
 from abc import ABCMeta, abstractmethod
-from pytorch_forecasting.models import BaseModel
-from dataclasses import dataclass, field
 from typing import Callable, Dict
+
 import torch
 import torch.nn as nn
+from pytorch_forecasting.models import BaseModel
 
 from src.dl.autoformer import AutoFormer
 from src.dl.informer import Informer
@@ -74,7 +74,9 @@ class SingleStepRNNModel(BaseModel):
 
 
 class AutoformerModel(BaseModel):
-    def __init__(self, seq_len,
+    def __init__(
+        self,
+        seq_len,
         label_len,
         pred_len,
         moving_avg,
@@ -90,28 +92,32 @@ class AutoformerModel(BaseModel):
         e_layers,
         c_out,
         d_layers,
-        output_attention=False, **kwargs):
+        output_attention=False,
+        **kwargs
+    ):
         # saves arguments in signature to `.hparams` attribute, mandatory call - do not skip this
         self.save_hyperparameters()
         # pass additional arguments to BaseModel.__init__, mandatory call - do not skip this
         super().__init__(**kwargs)
-        self.network = AutoFormer(seq_len,
-        label_len,
-        pred_len,
-        moving_avg,
-        enc_in,
-        dec_in,
-        d_model,
-        cardinality,
-        dropout,
-        factor,
-        n_heads,
-        d_ff,
-        activation,
-        e_layers,
-        c_out,
-        d_layers,
-        output_attention)
+        self.network = AutoFormer(
+            seq_len,
+            label_len,
+            pred_len,
+            moving_avg,
+            enc_in,
+            dec_in,
+            d_model,
+            cardinality,
+            dropout,
+            factor,
+            n_heads,
+            d_ff,
+            activation,
+            e_layers,
+            c_out,
+            d_layers,
+            output_attention,
+        )
 
     def forward(self, x: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         s_begin = 0

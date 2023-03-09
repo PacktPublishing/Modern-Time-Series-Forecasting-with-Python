@@ -1,12 +1,9 @@
-from abc import ABCMeta, abstractmethod
-import logging
 import math
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from abc import ABCMeta, abstractmethod
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from torch import Tensor
 
 
 class Attention(nn.Module, metaclass=ABCMeta):
@@ -28,10 +25,12 @@ class Attention(nn.Module, metaclass=ABCMeta):
         query: torch.Tensor,  # [batch_size, decoder_dim]
         values: torch.Tensor,  # [batch_size, seq_length, encoder_dim]
     ):
-        if query.ndim==2:
+        if query.ndim == 2:
             query = query.unsqueeze(1)
-        elif query.ndim==3:
-            assert query.shape[1]==1, "If `query` is a 3-D tensor should have shape [batch_size, 1, decoder_dim]"
+        elif query.ndim == 3:
+            assert (
+                query.shape[1] == 1
+            ), "If `query` is a 3-D tensor should have shape [batch_size, 1, decoder_dim]"
         seq_length = values.shape[1]
         scores = self._get_scores(query, values)  # [batch_size, seq_length]
         assert scores.size(1) == seq_length
@@ -76,7 +75,9 @@ class GeneralAttention(Attention):
 class AdditiveAttention(Attention):
     def __init__(self, encoder_dim: int, decoder_dim: int):
         super().__init__(encoder_dim, decoder_dim)
-        self.v = torch.nn.Parameter(torch.FloatTensor(self.decoder_dim).uniform_(-0.1, 0.1))
+        self.v = torch.nn.Parameter(
+            torch.FloatTensor(self.decoder_dim).uniform_(-0.1, 0.1)
+        )
         self.W_q = torch.nn.Linear(self.decoder_dim, self.decoder_dim)
         self.W_v = torch.nn.Linear(self.encoder_dim, self.decoder_dim)
 
@@ -94,10 +95,8 @@ class AdditiveAttention(Attention):
 class ConcatAttention(Attention):
     def __init__(self, hidden_dim: int):
         super().__init__(hidden_dim, hidden_dim)
-        self.v = torch.nn.Parameter(
-            torch.FloatTensor(hidden_dim).uniform_(-0.1, 0.1)
-        )
-        self.W = torch.nn.Linear(2*hidden_dim, hidden_dim)
+        self.v = torch.nn.Parameter(torch.FloatTensor(hidden_dim).uniform_(-0.1, 0.1))
+        self.W = torch.nn.Linear(2 * hidden_dim, hidden_dim)
 
     def _get_scores(
         self,
@@ -123,12 +122,16 @@ class ScaledDotProductAttention(nn.Module):
 
     def forward(self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor):
         # DIM: q, k, v --> [batch_size, seq_length, hidden_dim]
-        q = self.W_q(q) # [batch_size, seq_length, attn_dim]
-        k = self.W_k(k) # [batch_size, seq_length, attn_dim]
-        v = self.W_v(v) # [batch_size, seq_length, attn_dim]
+        q = self.W_q(q)  # [batch_size, seq_length, attn_dim]
+        k = self.W_k(k)  # [batch_size, seq_length, attn_dim]
+        v = self.W_v(v)  # [batch_size, seq_length, attn_dim]
         attn_energies = q.bmm(k.transpose(1, 2))  # [batch_size, seq_length, seq_length]
-        attn_energies = attn_energies / self.scaling  # [batch_size, seq_length, seq_length]
-        attn_weights = F.softmax(attn_energies, dim=-1)  # [batch_size, seq_length, seq_length]
+        attn_energies = (
+            attn_energies / self.scaling
+        )  # [batch_size, seq_length, seq_length]
+        attn_weights = F.softmax(
+            attn_energies, dim=-1
+        )  # [batch_size, seq_length, seq_length]
         return torch.bmm(
             attn_weights, v
         )  # v(k,q) = v * p(a(k,q)) and sum across attention dim to get [batch_size, seq_length, attn_dim]

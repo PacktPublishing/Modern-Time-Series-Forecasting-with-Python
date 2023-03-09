@@ -173,7 +173,11 @@ def add_temporal_features(
     for n in attr:
         if n == "Week":
             continue
-        df[prefix + n] = getattr(field.dt, n.lower()).astype(_32_bit_dtype) if use_32_bit else getattr(field.dt, n.lower())
+        df[prefix + n] = (
+            getattr(field.dt, n.lower()).astype(_32_bit_dtype)
+            if use_32_bit
+            else getattr(field.dt, n.lower())
+        )
         added_features.append(prefix + n)
     # Pandas removed `dt.week` in v1.1.10
     if "Week" in attr:
@@ -182,15 +186,17 @@ def add_temporal_features(
             if hasattr(field.dt, "isocalendar")
             else field.dt.week
         )
-        df.insert(3, prefix + "Week", week.astype(_32_bit_dtype) if use_32_bit else week)
+        df.insert(
+            3, prefix + "Week", week.astype(_32_bit_dtype) if use_32_bit else week
+        )
         added_features.append(prefix + "Week")
     if add_elapsed:
         mask = ~field.isna()
         df[prefix + "Elapsed"] = np.where(
-            mask, field.values.astype(np.int64) // 10 ** 9, None
+            mask, field.values.astype(np.int64) // 10**9, None
         )
         if use_32_bit:
-            if df[prefix + "Elapsed"].isnull().sum()==0:
+            if df[prefix + "Elapsed"].isnull().sum() == 0:
                 df[prefix + "Elapsed"] = df[prefix + "Elapsed"].astype("int32")
             else:
                 df[prefix + "Elapsed"] = df[prefix + "Elapsed"].astype("float32")
@@ -290,7 +296,11 @@ def bulk_add_fourier_features(
     added_features = []
     for column_to_encode, max_value in zip(columns_to_encode, max_values):
         df, features = add_fourier_features(
-            df, column_to_encode, max_value, n_fourier_terms=n_fourier_terms, use_32_bit=use_32_bit
+            df,
+            column_to_encode,
+            max_value,
+            n_fourier_terms=n_fourier_terms,
+            use_32_bit=use_32_bit,
         )
-        added_features+=features
+        added_features += features
     return df, added_features

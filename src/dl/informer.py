@@ -1,17 +1,14 @@
 # https://github.com/thuml/Autoformer
 import math
-import os
 from math import sqrt
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.utils import weight_norm
 
 
-### layers.Embed
+# layers.Embed
 class PositionalEmbedding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEmbedding, self).__init__()
@@ -134,8 +131,8 @@ class DataEmbedding(nn.Module):
 
         self.value_embedding = TokenEmbedding(c_in=c_in, d_model=d_model)
         self.position_embedding = PositionalEmbedding(d_model=d_model)
-        self.temporal_embedding = (
-            TemporalEmbedding(d_model=d_model, cardinality=cardinality)
+        self.temporal_embedding = TemporalEmbedding(
+            d_model=d_model, cardinality=cardinality
         )
         self.dropout = nn.Dropout(p=dropout)
 
@@ -164,7 +161,7 @@ class DataEmbedding_wo_pos(nn.Module):
         return self.dropout(x)
 
 
-## utils.masking
+# utils.masking
 
 
 class TriangularCausalMask:
@@ -329,7 +326,7 @@ class Decoder(nn.Module):
         return x
 
 
-## Self Attention Family
+# Self Attention Family
 class FullAttention(nn.Module):
     def __init__(
         self,
@@ -499,7 +496,7 @@ class AttentionLayer(nn.Module):
         return self.out_projection(out), attn
 
 
-### Informer
+# Informer
 
 
 class Informer(nn.Module):
@@ -556,9 +553,7 @@ class Informer(nn.Module):
                 )
                 for l in range(e_layers)
             ],
-            [ConvLayer(d_model) for l in range(e_layers - 1)]
-            if distil
-            else None,
+            [ConvLayer(d_model) for l in range(e_layers - 1)] if distil else None,
             norm_layer=torch.nn.LayerNorm(d_model),
         )
         # Decoder

@@ -1,16 +1,17 @@
+import warnings
 from abc import abstractmethod
 from collections import OrderedDict
 from typing import List, Union
-import warnings
+
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+import statsmodels.api as sm
 from pandas.core.nanops import nanmean as pd_nanmean
-from statsmodels.tsa.seasonal import DecomposeResult
+from plotly.subplots import make_subplots
 from sklearn.linear_model import RidgeCV
 from statsmodels.tools.data import _is_using_pandas
-import statsmodels.api as sm
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
+from statsmodels.tsa.seasonal import DecomposeResult
 
 
 # Ported from statsmodels
@@ -73,6 +74,7 @@ def _detrend(x, lo_frac=0.6, lo_delta=0.01, return_trend=False):
     )
     detrended = observed - trend
     return detrended, trend if return_trend else detrended
+
 
 class DecomposeResult(DecomposeResult):
     """
@@ -269,7 +271,9 @@ class BaseDecomposition:
                 )
         if detrend:
             # calc trend, remove from observation
-            _, trend = _detrend(observed, self.lo_frac, self.lo_delta, return_trend=True)
+            _, trend = _detrend(
+                observed, self.lo_frac, self.lo_delta, return_trend=True
+            )
             if self.model == "additive":
                 detrended = observed - trend
             else:
@@ -349,7 +353,7 @@ class STL(BaseDecomposition):
             period_averages -= np.mean(period_averages)
         else:
             period_averages /= np.mean(period_averages)
-        #Saving period_averages in the object
+        # Saving period_averages in the object
         self.period_averages = period_averages
         seasonal = np.tile(period_averages, len(detrended) // period + 1)[
             : len(detrended)
@@ -423,7 +427,7 @@ class FourierDecomposition(BaseDecomposition):
             sin_X[:, i - 1] = np.sin((2 * np.pi * seasonal_cycle * i) / max_cycle)
             cos_X[:, i - 1] = np.cos((2 * np.pi * seasonal_cycle * i) / max_cycle)
         return np.hstack([sin_X, cos_X])
-    
+
     def _prepare_X(self, detrended, **seasonality_kwargs):
         if (
             self.seasonality_period is None
@@ -443,10 +447,10 @@ class FourierDecomposition(BaseDecomposition):
 
     def _extract_seasonality(self, detrended, **seasonality_kwargs):
         """Extracts Seasonality from detrended data using fourier terms"""
-        X = self._prepare_X(
-            detrended, **seasonality_kwargs
+        X = self._prepare_X(detrended, **seasonality_kwargs)
+        self.seasonality_model = RidgeCV(normalize=True, fit_intercept=False).fit(
+            X, detrended
         )
-        self.seasonality_model = RidgeCV(normalize=True, fit_intercept=False).fit(X, detrended)
         return self.seasonality_model.predict(X)
 
 

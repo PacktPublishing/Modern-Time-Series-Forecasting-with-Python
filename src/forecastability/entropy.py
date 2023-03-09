@@ -1,24 +1,15 @@
-import functools
-import itertools
-from typing import Tuple, Union
-import warnings
+"""Entropy functions"""
+# Borrowed from https://github.com/raphaelvallat/antropy/blob/master/antropy/entropy.py
+
 from builtins import range
-from collections import defaultdict
-# import numba
 
 import numpy as np
 import pandas as pd
+from numba import njit
+from scipy.signal import periodogram
 
-"""Entropy functions"""
-# Borrowed from https://github.com/raphaelvallat/antropy/blob/master/antropy/entropy.py
-import numpy as np
-from math import factorial, log
-from scipy.signal import periodogram, welch
-from math import log, floor
-from numba import njit, jit
-# from numba.unsafe.ndarray import to_fixed_tuple
-from numba.typed import List
 from src.utils.ts_utils import make_stationary
+
 
 @np.vectorize
 def _xlog2x(x):
@@ -28,8 +19,10 @@ def _xlog2x(x):
     """
     return 0.0 if x == 0 else x * np.log2(x)
 
-def spectral_entropy(x, sampling_frequency=1, normalize=True,
-                     axis=-1, transform_stationary=False):
+
+def spectral_entropy(
+    x, sampling_frequency=1, normalize=True, axis=-1, transform_stationary=False
+):
     """Spectral Entropy.
     Parameters
     ----------
@@ -67,11 +60,13 @@ def spectral_entropy(x, sampling_frequency=1, normalize=True,
         se /= np.log2(psd_norm.shape[axis])
     return se
 
+
 @njit
 def _rolling(a, window):
     shape = (a.size - window + 1, window)
     strides = (a.itemsize, a.itemsize)
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
+
 
 # @njit
 @njit
@@ -119,6 +114,7 @@ def nb_std_axis_0(arr):
 def nb_amax_axis_0(arr):
     return apply_along_axis_0(np.amax, arr)
 
+
 def _into_subchunks(x, subchunk_length, every_n=1):
     """
     Split the time series x into subwindows of length "subchunk_length", starting every "every_n".
@@ -143,6 +139,7 @@ def _into_subchunks(x, subchunk_length, every_n=1):
 
     indexer = np.expand_dims(indices, axis=0) + np.expand_dims(shift_starts, axis=1)
     return x[indexer]
+
 
 # @njit
 def sample_entropy(x, transform_stationary=False):
@@ -201,15 +198,17 @@ def sample_entropy(x, transform_stationary=False):
     # Return SampEn
     return -np.log(A / B)
 
+
 @njit
 def _phi(x, m, r):
     N = x.shape[0]
-    x_re = _rolling(x,m)
-    diff = np.abs(x_re.copy().reshape(-1, 1, m) - x_re.copy().reshape(1,-1,m))
-    _max = nb_amax_axis_0(np.transpose(diff, (2,0,1)))
+    x_re = _rolling(x, m)
+    diff = np.abs(x_re.copy().reshape(-1, 1, m) - x_re.copy().reshape(1, -1, m))
+    _max = nb_amax_axis_0(np.transpose(diff, (2, 0, 1)))
     _max_mask = _max <= r
-    C = np.sum(_max_mask,axis=0) / (N - m + 1)
+    C = np.sum(_max_mask, axis=0) / (N - m + 1)
     return np.sum(np.log(C)) / (N - m + 1.0)
+
 
 def approximate_entropy(x, m, r, transform_stationary=False):
     """
@@ -250,6 +249,7 @@ def approximate_entropy(x, m, r, transform_stationary=False):
     if N <= m + 1:
         return 0
     return np.abs(_phi(x, m, r) - _phi(x, m + 1, r))
+
 
 # ss = pd.read_csv('https://raw.githubusercontent.com/selva86/datasets/master/sunspotarea.csv')
 # a10 = pd.read_csv('https://raw.githubusercontent.com/selva86/datasets/master/a10.csv')

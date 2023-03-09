@@ -1,15 +1,15 @@
 import warnings
-from typing import List, Tuple, Union
+from typing import List, Tuple
 
-import numpy as np
 import pandas as pd
 from pandas.api.types import is_list_like
 from window_ops.rolling import (
     seasonal_rolling_max,
-    seasonal_rolling_min,
     seasonal_rolling_mean,
+    seasonal_rolling_min,
     seasonal_rolling_std,
 )
+
 from src.utils.data_utils import _get_32_bit_dtype
 
 ALLOWED_AGG_FUNCS = ["mean", "max", "min", "std"]
@@ -96,7 +96,7 @@ def add_lags(
 
 """
 Different ways of calculating rolling statistics
-1. 
+1.
 train_df["rolling_3_mean"]=train_df.groupby(["LCLid"])['energy_consumption'].shift(1).rolling(3).mean()
 1.02 s ± 11.7 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 2.
@@ -392,9 +392,7 @@ def add_ewma(
             col_dict = {
                 f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df.groupby(
                     [ts_id]
-                )[
-                    column
-                ]
+                )[column]
                 .shift(n_shift)
                 .ewm(
                     alpha=None if use_spans else param,
@@ -409,9 +407,7 @@ def add_ewma(
             col_dict = {
                 f"{column}_ewma_{'span' if use_spans else 'alpha'}_{param}": df.groupby(
                     [ts_id]
-                )[
-                    column
-                ]
+                )[column]
                 .shift(n_shift)
                 .ewm(
                     alpha=None if use_spans else param,
