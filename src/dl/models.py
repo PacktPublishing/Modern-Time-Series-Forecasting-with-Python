@@ -207,7 +207,8 @@ class SingleStepRNNModel(BaseModel):
             )
         else:
             raise ValueError("Invalid RNN type")
-        self.fc = nn.Linear(self.hparams.hidden_size, 1)
+        multiplier = 2 if self.hparams.bidirectional else 1
+        self.fc = nn.Linear(multiplier*self.hparams.hidden_size, 1)
 
     def forward(self, batch: Tuple[torch.Tensor, torch.Tensor]):
         x, y = batch

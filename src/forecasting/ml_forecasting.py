@@ -282,9 +282,15 @@ class MLForecast:
             assert (
                 len(missing_cat_cols) == 0
             ), f"These categorical features are not handled by the categorical_encoder : {missing_cat_cols}"
+            # In later versions of sklearn get_feature_names have been deprecated
+            try:
+                feature_names = self.model_config.categorical_encoder.get_feature_names()
+            except AttributeError:
+                # in favour of get_feature_names_out()
+                feature_names = self.model_config.categorical_encoder.get_feature_names_out()
             X = self._cat_encoder.fit_transform(X, y)
             self._encoded_categorical_features = difference_list(
-                self.model_config.categorical_encoder.get_feature_names(),
+                feature_names,
                 self.feature_config.continuous_features
                 + self.feature_config.boolean_features,
             )
