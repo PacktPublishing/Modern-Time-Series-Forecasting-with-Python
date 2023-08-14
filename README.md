@@ -144,13 +144,12 @@ contributor and has developed an open source library—PyTorch Tabular—which m
 for tabular data easy and accessible. Originally from Thiruvananthapuram, India, Manu currently
 resides in Bengaluru, India, with his wife and son.
 
-## Errata
-
-On page 3 of the Book, In chapter 1, it should be Welcome to Modern Time Series Forecasting with Python instead of Welcome to Advanced Time Series Analysis Using Python
-
-
 
 ### Download a free PDF
 
  <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
 <p align="center"> <a href="https://packt.link/free-ebook/9781803246802">https://packt.link/free-ebook/9781803246802 </a> </p>
+
+
+## Errata
+On page 3 of the Book, In chapter 1, it should be Welcome to Modern Time Series Forecasting with Python instead of Welcome to Advanced Time Series Analysis Using Python
