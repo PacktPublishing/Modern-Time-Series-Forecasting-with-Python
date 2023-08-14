@@ -152,4 +152,4 @@ resides in Bengaluru, India, with his wife and son.
 
 
 ## Errata
-On page 3 of the Book, In chapter 1, it should be Welcome to Modern Time Series Forecasting with Python instead of Welcome to Advanced Time Series Analysis Using Python
+On page 3 of the Book, In chapter 1, it should be Welcome to *Modern Time Series Forecasting with Python* instead of Welcome to *Advanced Time Series Analysis Using Python*.
