@@ -448,9 +448,17 @@ class FourierDecomposition(BaseDecomposition):
     def _extract_seasonality(self, detrended, **seasonality_kwargs):
         """Extracts Seasonality from detrended data using fourier terms"""
         X = self._prepare_X(detrended, **seasonality_kwargs)
-        self.seasonality_model = RidgeCV(normalize=True, fit_intercept=False).fit(
-            X, detrended
-        )
+        try:
+            self.seasonality_model = RidgeCV(normalize=True, fit_intercept=False).fit(
+                X, detrended
+            )
+        #catch error because normalize parameter isn't available in newer versions of sklearn
+        except TypeError:
+            from sklearn.preprocessing import StandardScaler
+            self.scaler = StandardScaler()
+            self.seasonality_model = RidgeCV(fit_intercept=False).fit(
+                self.scaler.fit_transform(X), detrended
+            )
         return self.seasonality_model.predict(X)
 
 
