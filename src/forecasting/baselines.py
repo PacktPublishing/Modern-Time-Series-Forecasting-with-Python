@@ -21,7 +21,7 @@ class NaiveMovingAverage(LocalForecastingModel):
         super().fit(series)
         self._history = series.data_array().to_series().values
         self._fitted_values = (
-            series.data_array().to_series().rolling(window=5).mean().bfill()
+            series.data_array().to_series().rolling(window=self.window).mean().bfill()
         )
 
     def predict(self, n: int, num_samples: int = 1):
