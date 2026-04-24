@@ -415,7 +415,7 @@ class FourierDecomposition(BaseDecomposition):
         if seasonality_period is not None:
             assert (
                 seasonality_period in self.ALLOWED_SEASONALITY
-            ), "seasonality should be one of these strings {ALLOWED_SEASONALITY} for FourierDecomposition"
+            ), f"seasonality should be one of these strings {ALLOWED_SEASONALITY} for FourierDecomposition"
         self.seasonality_period = seasonality_period
         self.n_fourier_terms = n_fourier_terms
 
